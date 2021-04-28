@@ -29,7 +29,7 @@ O objetivo desse material é apresentar os procedimentos básicos para aquisiç�
 
 **1)** Acesse o endereço <https://co2.jpl.nasa.gov/>
   
-```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "800px"}
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
 knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_01.png")
 ```
 **2)** Acesse o Browse *OCO-2 Data* em *Level 2 Data Set OCO-2*.

@@ -25,7 +25,7 @@ aquisição de dados do satélite OCO-2 e processamento inicial em R.
 
 **1)** Acesse o endereço <https://co2.jpl.nasa.gov/>
 
-<img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_01.png" width="800px" style="display: block; margin: auto;" />
+<img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_01.png" width="600px" style="display: block; margin: auto;" />
 **2)** Acesse o Browse *OCO-2 Data* em *Level 2 Data Set OCO-2*.
 
 <img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_02.png" width="600px" style="display: block; margin: auto;" />
