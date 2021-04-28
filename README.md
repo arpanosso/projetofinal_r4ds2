@@ -1,7 +1,11 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# projetofinal\_r4ds2
+# Projeto Final - R4DS2
+
+### Aluno: Alan R. Panosso
+
+### Data: 01/05/2021
 
 <!-- badges: start -->
 
