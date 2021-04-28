@@ -21,16 +21,14 @@ The goal of projetofinal_r4ds2 is to ...
 
 What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
 
-```{r cars}
-summary(cars)
+# CO2 Virtual Science Data Environment
+
+O objetivo desse material é apresentar os procedimentos básicos para aquisição de dados do satélite OCO-2 e processamento inicial em R.
+
+## Aquisição de dados
+
+**1)** Acesse o endereço <https://co2.jpl.nasa.gov/>
+  
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_01.png")
 ```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub!
