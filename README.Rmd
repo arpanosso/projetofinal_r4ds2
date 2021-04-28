@@ -29,6 +29,108 @@ O objetivo desse material é apresentar os procedimentos básicos para aquisiç�
 
 **1)** Acesse o endereço <https://co2.jpl.nasa.gov/>
   
-```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "800px"}
 knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_01.png")
+```
+**2)** Acesse o Browse *OCO-2 Data* em *Level 2 Data Set OCO-2*.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_02.png")
+```
+
+**3)** Role a página para baixo e acesse *CUSTOMIZE PRODUCT ON BUILD PAGE*.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_03.png")
+```
+
+**4)** No menu à esquerda estarão as 9 categorias para personalizar o banco de dados.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_04.png")
+```
+
+**5)** Em *DATA TYPE* selecione **OCO-2 Satellite**.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_05.png")
+```
+
+**6)** Em *PRODUCTS* selecione **OCO-2 Full**.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_06.png")
+```
+
+**7)** Em *DATA VERSION* selecione **10**.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_07.png")
+```
+
+**8)** Em *SPATIAL + TEMPORAL* selecione **Customize Your Spatial + Temporal Coverage**.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_08.png")
+```
+
+**OPTION 01** Utilize para selecionar a área para aquisição dos dados.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_09.png")
+```
+
+**OPTION 02** Utilize para selecionar o período para aquisição dos dados.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_09_1.png")
+```
+
+**9)** Em *DOWN SAMPLE PRODUCT* selecione **Yes, I want a Level 3 data product**. Altere os valores das células e o passo temporal desejado.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_10.png")
+```
+
+**10)** Em *DATA VARIABLES* selecione as variáveis desejadas.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_11.png")
+```
+
+
+**11)** Abaixo são apresentadas as opções para os filtros e o tipo de arquivo, selecione **CSV FILE**.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_11_1.png")
+```
+
+**12)** Forneça um endereço de e-mail para onde os links serão direcionados.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_12.png")
+```
+**13)** Acesse o seu e-mail, será enviado uma mensagem com o endereço dos arquivos onde você poderá acompanhar o progresso do processamento de seus dados. Ao final dessa etapa um novo e-mail é enviado informando que os dados estão disponíveis.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_13.png")
+```
+
+**14)** Acesse o link enviado em seu e-mail e você será direcionado a página.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_14.png")
+```
+
+**15)** Role a página para baixo e selecione a opção **WGET File List**.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "800px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_15.png")
+```
+
+
+**16)** Salve o arquivo `.txt` na pasta `data-raw`.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "300px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_16.png")
 ```
