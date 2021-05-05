@@ -17,11 +17,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of projetofinal_r4ds2 is to ...
-
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-# CO2 Virtual Science Data Environment
+# $CO_2$ Virtual Science Data Environment
 
 O objetivo desse material é apresentar os procedimentos básicos para aquisição de dados do satélite OCO-2 e processamento inicial em R.
 
@@ -134,3 +130,7 @@ knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofina
 ```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "300px"}
 knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_16.png")
 ```
+
+
+
+
