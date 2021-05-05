@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-# $CO_2$ Virtual Science Data Environment
+# CO2 Virtual Science Data Environment
 
 O objetivo desse material é apresentar os procedimentos básicos para aquisição de dados do satélite OCO-2 e processamento inicial em R.
 
@@ -127,9 +127,19 @@ knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofina
 
 **16)** Salve o arquivo `.txt` na pasta `data-raw`.
 
-```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "300px"}
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "400px"}
 knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_16.png")
 ```
+
+**17)** O arquivo contém os endereços de cada arquivo para você fazer o download.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "400px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/caminhos.png")
+```
+
+
+
+## Download dos arquivos
 
 
 

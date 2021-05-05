@@ -8,13 +8,7 @@
 ### Data: 01/05/2021
 
 <!-- badges: start -->
-
 <!-- badges: end -->
-
-The goal of projetofinal\_r4ds2 is to …
-
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
 
 # CO2 Virtual Science Data Environment
 
@@ -102,4 +96,11 @@ página.
 
 **16)** Salve o arquivo `.txt` na pasta `data-raw`.
 
-<img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_16.png" width="300px" style="display: block; margin: auto;" />
+<img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_16.png" width="400px" style="display: block; margin: auto;" />
+
+**17)** O arquivo contém os endereços de cada arquivo para você fazer o
+download.
+
+<img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/caminhos.png" width="400px" style="display: block; margin: auto;" />
+
+## Download dos arquivos
