@@ -98,9 +98,8 @@ página.
 
 <img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_16.png" width="400px" style="display: block; margin: auto;" />
 
-**17)** O arquivo contém os endereços de cada arquivo para você fazer o
-download.
+**17)** O arquivo contém os endereços de cada arquivo para download.
 
-<img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/caminhos.png" width="400px" style="display: block; margin: auto;" />
+<img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/caminhos.png" width="500px" style="display: block; margin: auto;" />
 
 ## Download dos arquivos

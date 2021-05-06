@@ -131,15 +131,46 @@ knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofina
 knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_16.png")
 ```
 
-**17)** O arquivo contém os endereços de cada arquivo para você fazer o download.
+**17)** O arquivo contém os endereços de cada arquivo para download.
 
-```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "400px"}
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "500px"}
 knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/caminhos.png")
+```
+
+## Download dos arquivos
+
+O código abaixo será utilizado para fzer o download dos arquivos CSV com os dados do satélite OCO2. O volume dos dados á alto, aro redor de 11 $GB$.
+
+```{r}
+# Definindo o Pipe
+`%>%` <- magrittr::`%>%`
+
+# Links de download gerados pela NASA
+links <- list.files(path = "data-raw/",
+             pattern = ".txt",
+             full.names = TRUE) %>%
+    read.table() %>%
+    dplyr::pull(V1)
+
+# Definindo os caminhos e nomes dos arquivos
+n_split <- lengths(stringr::str_split(links[1],"/"))
+files.csv <- stringr::str_split(links,"/",simplify = TRUE)[,n_split]
+files.csv <- paste0("data-raw/csv/",files.csv)
+
+# Download dos arquivos .csv
+# purrr::map2(links,
+#             files.csv,
+#             .f=download.file,mode="wb")
+```
+
+Imagem de dos arquivos baixados.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "500px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dow_csv.png")
 ```
 
 
 
-## Download dos arquivos
 
 
 
