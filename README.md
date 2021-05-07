@@ -103,3 +103,39 @@ página.
 <img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/caminhos.png" width="500px" style="display: block; margin: auto;" />
 
 ## Download dos arquivos
+
+O código abaixo será utilizado para fazer o download dos arquivos CSV
+com os dados do satélite OCO2.
+
+``` r
+# Definindo o Pipe
+`%>%` <- magrittr::`%>%`
+
+# Links de download gerados pela NASA
+links <- list.files(path = "data-raw/",
+             pattern = ".txt",
+             full.names = TRUE) %>%
+    read.table() %>%
+    dplyr::pull(V1)
+
+# Definindo os caminhos e nomes dos arquivos
+n_split <- lengths(stringr::str_split(links[1],"/"))
+files.csv <- stringr::str_split(links,"/",simplify = TRUE)[,n_split]
+files.csv <- paste0("data-raw/csv/",files.csv)
+
+# Download dos arquivos .csv
+# purrr::map2(links,
+#             files.csv,
+#             .f=download.file,mode="wb")
+```
+
+Imagem dos arquivos baixados.
+
+<img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dow_csv.png" width="700px" style="display: block; margin: auto;" />
+
+O volume dos dados á alto, ao redor de *11 GB*, então para garantir a
+reprodutibilidade desse material, vamos realizar uma faxina nos dados,
+retirando, os valores perdidos, ou falhas do sensor, que são registrados
+como **-999999.0**, como apresentado abaixo.
+
+<img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dados_perdidos.png" width="700px" style="display: block; margin: auto;" />

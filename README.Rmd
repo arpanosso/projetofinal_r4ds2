@@ -139,7 +139,7 @@ knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofina
 
 ## Download dos arquivos
 
-O código abaixo será utilizado para fzer o download dos arquivos CSV com os dados do satélite OCO2. O volume dos dados á alto, aro redor de 11 $GB$.
+O código abaixo será utilizado para fazer o download dos arquivos CSV com os dados do satélite OCO2. 
 
 ```{r}
 # Definindo o Pipe
@@ -163,10 +163,17 @@ files.csv <- paste0("data-raw/csv/",files.csv)
 #             .f=download.file,mode="wb")
 ```
 
-Imagem de dos arquivos baixados.
+Imagem dos arquivos baixados.
 
-```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "500px"}
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "700px"}
 knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dow_csv.png")
+```
+
+
+O volume dos dados é alto, ao redor de *11 GB*, então para garantir a reprodutibilidade desse material, vamos realizar uma faxina prévia dos dados, retirando os valores perdidos (falhas do sensor) que forão registrados como **-999999.0**, como apresentado abaixo.
+
+```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "700px"}
+knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dados_perdidos.png")
 ```
 
 
