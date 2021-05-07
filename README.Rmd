@@ -187,7 +187,6 @@ faxina_co2 <- function(arquivo, col, valor_perdido){
 purrr::map(files.csv, faxina_co2,
            col=`xco2 (Moles Mole^{-1})`,
            valor_perdido= -999999)
-
 ```
 
 
@@ -196,6 +195,11 @@ purrr::map(files.csv, faxina_co2,
 knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dow_csv_posfaxina.png")
 ```
 
+Agora vamos compilar os arquivos e salvar o arquivo resultade no diretório *data/oco2.rds*
 
+```{r,eval=FALSE}
+oco2 <- purrr::map_dfr(files.csv, ~readr::read_csv(.x))
+readr::write_rds(oco2,"data/oco2.rds")
+```
 
 

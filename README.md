@@ -130,7 +130,7 @@ files.csv <- paste0("data-raw/csv/",files.csv)
 ```
 
 Imagem dos arquivos baixados. Observe o tamnho dos arquivo individuais,
-ao redor de 159 *MB*
+ao redor de *162 MB*.
 
 <img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dow_csv.png" width="700px" style="display: block; margin: auto;" />
 
@@ -158,3 +158,11 @@ purrr::map(files.csv, faxina_co2,
 ```
 
 <img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dow_csv_posfaxina.png" width="700px" style="display: block; margin: auto;" />
+
+Agora vamos compilar os arquivos e salvar o arquivo resultade no
+diretório *data/oco2.rds*
+
+``` r
+oco2 <- purrr::map_dfr(files.csv, ~readr::read_csv(.x))
+readr::write_rds(oco2,"data/oco2.rds")
+```
