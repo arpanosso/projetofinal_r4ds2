@@ -169,6 +169,8 @@ Imagem dos arquivos baixados. Observe o tamnho dos arquivo individuais, ao redor
 knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dow_csv.png")
 ```
 
+## Faxina dos dados
+
 O volume de dados é alto, ao todo os arquivos somam *11 GB*, então para garantir a reprodutibilidade desse material, vamos realizar uma faxina prévia dos dados, retirando os valores perdidos (falhas do sensor) que foram registrados como **-999999.0**.
 
 ```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "700px"}
@@ -176,6 +178,7 @@ knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofina
 ```
 
 O código abaixo realiza a faxina inicial dos dados, após sua execussão o volume de dados diminuiu consideravelmente, ao todo *72 MB*, como apresentado na imagem subsequente.
+
 
 ```{r,eval=FALSE}
 faxina_co2 <- function(arquivo, col, valor_perdido){
@@ -190,16 +193,20 @@ purrr::map(files.csv, faxina_co2,
 ```
 
 
-
 ```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "700px"}
 knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dow_csv_posfaxina.png")
 ```
 
-Agora vamos compilar os arquivos e salvar o arquivo resultade no diretório *data/oco2.rds*
+Agora vamos compilar todos os arquivos em um único que será salvo no diretório *data/oco2.rds*.
 
 ```{r,eval=FALSE}
 oco2 <- purrr::map_dfr(files.csv, ~readr::read_csv(.x))
 readr::write_rds(oco2,"data/oco2.rds")
 ```
 
+## Análise inicial
+
+```{r,eval=FALSE}
+library(tidyverse)
+```
 

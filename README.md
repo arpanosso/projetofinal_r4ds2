@@ -134,6 +134,8 @@ ao redor de *162 MB*.
 
 <img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dow_csv.png" width="700px" style="display: block; margin: auto;" />
 
+## Faxina dos dados
+
 O volume de dados é alto, ao todo os arquivos somam *11 GB*, então para
 garantir a reprodutibilidade desse material, vamos realizar uma faxina
 prévia dos dados, retirando os valores perdidos (falhas do sensor) que
@@ -159,10 +161,16 @@ purrr::map(files.csv, faxina_co2,
 
 <img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dow_csv_posfaxina.png" width="700px" style="display: block; margin: auto;" />
 
-Agora vamos compilar os arquivos e salvar o arquivo resultade no
-diretório *data/oco2.rds*
+Agora vamos compilar todos os arquivos em um único que será salvo no
+diretório *data/oco2.rds*.
 
 ``` r
 oco2 <- purrr::map_dfr(files.csv, ~readr::read_csv(.x))
 readr::write_rds(oco2,"data/oco2.rds")
+```
+
+## Análise inicial
+
+``` r
+library(tidyverse)
 ```
