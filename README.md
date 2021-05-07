@@ -129,13 +129,32 @@ files.csv <- paste0("data-raw/csv/",files.csv)
 #             .f=download.file,mode="wb")
 ```
 
-Imagem dos arquivos baixados.
+Imagem dos arquivos baixados. Observe o tamnho dos arquivo individuais,
+ao redor de 159 *MB*
 
 <img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dow_csv.png" width="700px" style="display: block; margin: auto;" />
 
-O volume dos dados á alto, ao redor de *11 GB*, então para garantir a
-reprodutibilidade desse material, vamos realizar uma faxina nos dados,
-retirando, os valores perdidos, ou falhas do sensor, que são registrados
-como **-999999.0**, como apresentado abaixo.
+O volume de dados é alto, ao todo os arquivos somam *11 GB*, então para
+garantir a reprodutibilidade desse material, vamos realizar uma faxina
+prévia dos dados, retirando os valores perdidos (falhas do sensor) que
+foram registrados como **-999999.0**.
 
 <img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dados_perdidos.png" width="700px" style="display: block; margin: auto;" />
+
+O código abaixo realiza a faxina inicial dos dados, após sua execussão o
+volume de dados diminuiu consideravelmente, ao todo *72 MB*, como
+apresentado na imagem subsequente.
+
+``` r
+faxina_co2 <- function(arquivo, col, valor_perdido){
+   da <- readr::read_csv(arquivo) %>%
+     dplyr::filter({{col}} != valor_perdido)
+   readr::write_csv(da,arquivo)
+}
+
+purrr::map(files.csv, faxina_co2,
+           col=`xco2 (Moles Mole^{-1})`,
+           valor_perdido= -999999)
+```
+
+<img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dow_csv_posfaxina.png" width="700px" style="display: block; margin: auto;" />
