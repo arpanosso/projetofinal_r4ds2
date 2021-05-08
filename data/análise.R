@@ -24,10 +24,6 @@ glimpse(oco2)
            dia = day(data),
            dia_semana = wday(data))
 
- oco2 %>%
-   ggplot(aes(x=data, y=xco2)) +
-   geom_line(color = "blue")
-
 
 # Vamos plotar a concentração de CO2 no ano de 2014
 # mapeamos o dia da semana e observamos que o satélite passa
@@ -37,7 +33,7 @@ oco2 %>%
   ggplot(aes(x=longitude, y=latitude, color=dia_semana)) +
   geom_point()
 
-# Agora precisamos filtrar apenas os dados que estão dentro do teritório
+# Agora precisamos filtrar apenas os dados que estão dentro do território
 # nacional, utilizamos então o pacote geobr
 
 regiao <- geobr::read_region(showProgress = FALSE)
@@ -47,9 +43,13 @@ pol_br <- br$geom %>%
   purrr::pluck(1) %>%
   as.matrix()
 
-pol_nordeste <- regiao$geom %>%
-  purrr::pluck(2) %>%
-  as.matrix()
+### Vamos criar os polígonos das regiões
+pol_norte <- regiao$geom %>% purrr::pluck(1) %>% as.matrix()
+pol_nordeste <- regiao$geom %>% purrr::pluck(2) %>% as.matrix()
+pol_sudeste <- regiao$geom %>% purrr::pluck(3) %>% as.matrix()
+pol_sul <- regiao$geom %>% purrr::pluck(4) %>% as.matrix()
+pol_centroeste<- regiao$geom %>% purrr::pluck(5) %>% as.matrix()
+
 
 br %>%
   ggplot() +
@@ -62,17 +62,26 @@ br %>%
              col="red",
              alpha=0.2)
 
-# Deve-se corrigir a Regição nordeste
+# Deve-se corrigir os polígono do Brasil e da Regição Nordeste
 pol_nordeste <- pol_nordeste[pol_nordeste[,1]<=-34,]# CORREÇÃO do polígono
 pol_nordeste <- pol_nordeste[!((pol_nordeste[,1]>=-38.7 & pol_nordeste[,1]<=-38.6) &
                                  pol_nordeste[,2]<= -15),]# CORREÇÃO do polígono
 
+pol_br <- pol_br[pol_br[,1]<=-34,] # CORREÇÃO do polígono
+pol_br <- pol_br[!((pol_br[,1]>=-38.8 & pol_br[,1]<=-38.6) &
+                     (pol_br[,2]>= -19 & pol_br[,2]<= -16)),]
+
 # Vamos criar o filtro para os pontos pertencentes ao polígono do Brasil.
+# e do nordeste
 oco2 <- oco2 %>%
-          mutate(
-            flag_br = def_pol(longitude, latitude, pol_br),
-            flag_nordeste = def_pol(longitude, latitude, pol_nordeste)
-          )
+  dplyr::mutate(
+    flag_br = def_pol(longitude, latitude, pol_br),
+    flag_norte = def_pol(longitude, latitude, pol_norte),
+    flag_nordeste = def_pol(longitude, latitude, pol_nordeste),
+    flag_sul = def_pol(longitude, latitude, pol_sul),
+    flag_sudeste = def_pol(longitude, latitude, pol_sudeste),
+    flag_centroeste = def_pol(longitude, latitude, pol_centroeste)
+  )
 glimpse(oco2)
 
 br %>%
@@ -86,12 +95,13 @@ br %>%
              col="red",
              alpha=0.2)
 
+## Agora podemos filtrar os pontos, para os dados do Brasil
+oco2_br <- oco2 %>%
+  filter( flag_br | flag_nordeste ) %>%
+  select(-flag_br)
+readr::write_rds(oco2_br,"data/oco2_br.rds")
 
-
-
-
-
-
+### Análise
 
 
 

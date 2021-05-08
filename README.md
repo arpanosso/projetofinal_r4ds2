@@ -108,8 +108,10 @@ O código abaixo será utilizado para fazer o download dos arquivos CSV
 com os dados do satélite OCO2.
 
 ``` r
-# Definindo o Pipe
+# Definindo o Pipe e funções
 `%>%` <- magrittr::`%>%`
+source("r/graficos.R")
+source("r/funcoes.R")
 
 # Links de download gerados pela NASA
 links <- list.files(path = "data-raw/",
@@ -144,7 +146,7 @@ foram registrados como **-999999.0**.
 <img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dados_perdidos.png" width="700px" style="display: block; margin: auto;" />
 
 O código abaixo realiza a faxina inicial dos dados, após sua execussão o
-volume de dados diminuiu consideravelmente, ao todo *72 MB*, como
+volume de dados diminuiu consideravelmente, ao todo *63 MB*, como
 apresentado na imagem subsequente.
 
 ``` r
@@ -161,16 +163,567 @@ purrr::map(files.csv, faxina_co2,
 
 <img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dow_csv_posfaxina.png" width="700px" style="display: block; margin: auto;" />
 
-Agora vamos compilar todos os arquivos em um único que será salvo no
-diretório *data/oco2.rds*.
+Agora vamos compilar todos os arquivos em um único que posteriormente
+será salvo no diretório *data/oco2.rds*.
 
 ``` r
 oco2 <- purrr::map_dfr(files.csv, ~readr::read_csv(.x))
 readr::write_rds(oco2,"data/oco2.rds")
 ```
 
-## Análise inicial
+Abaixo observamos o vislumbre da base de dados, e algumas transformações
+serão necessárias.
+
+``` r
+dplyr::glimpse(oco2)
+#> Rows: 364,529
+#> Columns: 11
+#> $ longitude                              <dbl> -74.58225, -74.58225, -74.58...
+#> $ longitude_bnds                         <chr> "-74.70703125:-74.4574652778...
+#> $ latitude                               <dbl> -30.22572489, -29.97654828, ...
+#> $ latitude_bnds                          <chr> "-30.3503131952:-30.10113658...
+#> $ `time (YYYYMMDDHHMMSS)`                <dbl> 2.014091e+13, 2.014091e+13, ...
+#> $ `time_bnds (YYYYMMDDHHMMSS)`           <chr> "20140909000000:201409100000...
+#> $ `altitude (km)`                        <dbl> 3307.8, 3307.8, 3307.8, 3307...
+#> $ `alt_bnds (km)`                        <chr> "0.0:6615.59960938", "0.0:66...
+#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.012406800, 0.010696600, -0...
+#> $ fluorescence_offset_relative_757nm_idp <dbl> -3.58630e+00, 8.81219e-02, -...
+#> $ `xco2 (Moles Mole^{-1})`               <dbl> 0.000394333, 0.000395080, 0....
+```
+
+Inicialmente devemos transformar os dados de concentração de CO2,
+variável `xco2 (Moles Mole^{-1})` para ppm em seguida devemos criar as
+variáveis de data a partir da variável `time (YYYYMMDDHHMMSS)`.
+
+``` r
+oco2<-oco2 %>%
+         dplyr::mutate(
+           xco2 = `xco2 (Moles Mole^{-1})`*1e06,
+           data = lubridate::ymd_hms(`time (YYYYMMDDHHMMSS)`),
+           ano = lubridate::year(data),
+           mes = lubridate::month(data),
+           dia = lubridate::day(data),
+           dia_semana = lubridate::wday(data))
+```
+
+Plot da concentração de CO2 no ano de 2014, primeiro ano de utilização
+do satélite.
+
+``` r
+oco2 %>%
+  dplyr::filter(ano == 2014) %>%
+  ggplot2::ggplot(ggplot2::aes(x=longitude, y=latitude, color=dia_semana)) +
+  ggplot2::geom_point()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+
+A próxima operação é selecionarmos na base de dados somente os pontos
+pertencentes ao território brasileiro. Assim vamos utilizar o pacote
+`geobr` para criarmos o filtro a partir do polígono do Brasil e regiões.
+
+``` r
+regiao <- geobr::read_region(showProgress = FALSE)
+#> Loading required namespace: sf
+#> Using year 2010
+br <- geobr::read_country(showProgress = FALSE)
+#> Using year 2010
+```
+
+Agora podemos extrair os polígonos
+
+``` r
+### Polígono Brasil
+pol_br <- br$geom %>% purrr::pluck(1) %>% as.matrix()
+
+### Polígonos das Regiões
+pol_norte <- regiao$geom %>% purrr::pluck(1) %>% as.matrix()
+pol_nordeste <- regiao$geom %>% purrr::pluck(2) %>% as.matrix()
+pol_sudeste <- regiao$geom %>% purrr::pluck(3) %>% as.matrix()
+pol_sul <- regiao$geom %>% purrr::pluck(4) %>% as.matrix()
+pol_centroeste<- regiao$geom %>% purrr::pluck(5) %>% as.matrix()
+```
+
+Plot dos pontos e o polígono
+
+``` r
+br %>%
+  ggplot2::ggplot() +
+  ggplot2::geom_sf(fill="#2D3E50", color="#FEBF57",
+          size=.15, show.legend = FALSE)+
+  tema_mapa() +
+  ggplot2::geom_point(data=oco2 %>% dplyr::filter(ano == 2014) ,
+             ggplot2::aes(x=longitude,y=latitude),
+             shape=3,
+             col="red",
+             alpha=0.2)
+```
+
+![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+
+A partir da função point.in.pol do pacote sp, criamos afunção abaixo
+para facilitar o processo de filtragem em função de um polígono
+definido.
+
+``` r
+#' @title Define se pontos pertencem a um polígono
+#'
+#' @name def_pol
+#'
+#' @description Verifica para um ou mais pontos se eles se enquadram em um determinado polígono.
+#'
+#' @param x Vetor com a coordenada x do ponto
+#' @param y Vetor com a coordenada y do ponto
+#' @param pol matriz do polígono
+#'
+#'
+#' @details Função baseada na função point.in.pol do pacote sp, utilziada
+#'  para filtrar os pontos pertencentes aos polígonos dos estados, 
+#'   regiões e muicípios do Brasil.
+
+def_pol <- function(x, y, pol){
+  as.logical(sp::point.in.polygon(point.x = x,
+                                  point.y = y,
+                                  pol.x = pol[,1],
+                                  pol.y = pol[,2]))
+}
+```
+
+Vamos criar o filtro para os pontos pertencentes ao polígono do Brasil e
+demais regições.
+
+``` r
+oco2 <- oco2 %>%
+          dplyr::mutate(
+            flag_br = def_pol(longitude, latitude, pol_br),
+            flag_norte = def_pol(longitude, latitude, pol_norte),
+            flag_nordeste = def_pol(longitude, latitude, pol_nordeste),
+            flag_sul = def_pol(longitude, latitude, pol_sul),
+            flag_sudeste = def_pol(longitude, latitude, pol_sudeste),
+            flag_centroeste = def_pol(longitude, latitude, pol_centroeste)
+          ) 
+dplyr::glimpse(oco2)
+#> Rows: 364,529
+#> Columns: 23
+#> $ longitude                              <dbl> -74.58225, -74.58225, -74.58...
+#> $ longitude_bnds                         <chr> "-74.70703125:-74.4574652778...
+#> $ latitude                               <dbl> -30.22572489, -29.97654828, ...
+#> $ latitude_bnds                          <chr> "-30.3503131952:-30.10113658...
+#> $ `time (YYYYMMDDHHMMSS)`                <dbl> 2.014091e+13, 2.014091e+13, ...
+#> $ `time_bnds (YYYYMMDDHHMMSS)`           <chr> "20140909000000:201409100000...
+#> $ `altitude (km)`                        <dbl> 3307.8, 3307.8, 3307.8, 3307...
+#> $ `alt_bnds (km)`                        <chr> "0.0:6615.59960938", "0.0:66...
+#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.012406800, 0.010696600, -0...
+#> $ fluorescence_offset_relative_757nm_idp <dbl> -3.58630e+00, 8.81219e-02, -...
+#> $ `xco2 (Moles Mole^{-1})`               <dbl> 0.000394333, 0.000395080, 0....
+#> $ xco2                                   <dbl> 394.333, 395.080, 394.728, 3...
+#> $ data                                   <dttm> 2014-09-09 12:00:00, 2014-0...
+#> $ ano                                    <dbl> 2014, 2014, 2014, 2014, 2014...
+#> $ mes                                    <dbl> 9, 9, 9, 9, 9, 9, 9, 9, 9, 9...
+#> $ dia                                    <int> 9, 9, 9, 9, 9, 9, 9, 18, 18,...
+#> $ dia_semana                             <dbl> 3, 3, 3, 3, 3, 3, 3, 5, 5, 5...
+#> $ flag_br                                <lgl> FALSE, FALSE, FALSE, FALSE, ...
+#> $ flag_norte                             <lgl> FALSE, FALSE, FALSE, FALSE, ...
+#> $ flag_nordeste                          <lgl> FALSE, FALSE, FALSE, FALSE, ...
+#> $ flag_sul                               <lgl> FALSE, FALSE, FALSE, FALSE, ...
+#> $ flag_sudeste                           <lgl> FALSE, FALSE, FALSE, FALSE, ...
+#> $ flag_centroeste                        <lgl> FALSE, FALSE, FALSE, FALSE, ...
+```
+
+Plot dos pontos do polígono br\_pol.
+
+``` r
+br %>%
+  ggplot2::ggplot() +
+  ggplot2::geom_sf(fill="#2D3E50", color="#FEBF57",
+          size=.15, show.legend = FALSE)+
+  tema_mapa() +
+  ggplot2::geom_point(data=oco2 %>% dplyr::filter(flag_br, ano == 2014) ,
+             ggplot2::aes(x=longitude,y=latitude),
+             shape=3,
+             col="red",
+             alpha=0.2)
+```
+
+![](README_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
+
+Obseve que houve uma falha na região nordeste, podemos então pedir os
+pontos presentes do polígono br ou nordeste.
+
+``` r
+br %>%
+  ggplot2::ggplot() +
+  ggplot2::geom_sf(fill="#2D3E50", color="#FEBF57",
+          size=.15, show.legend = FALSE)+
+  tema_mapa() +
+  ggplot2::geom_point(data=oco2 %>% 
+                      dplyr::filter(flag_br|flag_nordeste, ano == 2014),
+             ggplot2::aes(x=longitude,y=latitude),
+             shape=3,
+             col="red",
+             alpha=0.2)
+```
+
+![](README_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+
+A falha continuou, então vamos corrigir o polígono da Brasil e da região
+nordeste.
+
+``` r
+# Retirando alguns pontos
+pol_br <- pol_br[pol_br[,1]<=-34,]
+pol_br <- pol_br[!((pol_br[,1]>=-38.8 & pol_br[,1]<=-38.6) &
+                              (pol_br[,2]>= -19 & pol_br[,2]<= -16)),]
+
+pol_nordeste <- pol_nordeste[pol_nordeste[,1]<=-34,]
+pol_nordeste <- pol_nordeste[!((pol_nordeste[,1]>=-38.7 & pol_nordeste[,1]<=-38.6) & pol_nordeste[,2]<= -15),]
+
+
+
+# Recriando o flag_nordeste
+oco2 <- oco2 %>%
+          dplyr::mutate(
+            flag_br = def_pol(longitude, latitude, pol_br),
+            flag_nordeste = def_pol(longitude, latitude, pol_nordeste)
+            )
+
+# Plot do mapa e os pontos
+br %>%
+  ggplot2::ggplot() +
+  ggplot2::geom_sf(fill="#2D3E50", color="#FEBF57",
+          size=.15, show.legend = FALSE)+
+  tema_mapa() +
+  ggplot2::geom_point(data=oco2 %>% 
+                      dplyr::filter(flag_br|flag_nordeste, ano == 2014),
+             ggplot2::aes(x=longitude,y=latitude),
+             shape=3,
+             col="red",
+             alpha=0.2)
+```
+
+![](README_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
+
+Agora podemos filtrar os pontos para o território brasileiro e salvar o
+arquivo na pasta **data/oco2\_br.rds**.
+
+``` r
+oco2_br <- oco2 %>%
+  dplyr::filter( flag_br | flag_nordeste ) %>%
+  dplyr::select(-flag_br)
+readr::write_rds(oco2_br,"data/oco2_br.rds")
+```
+
+## Análise de série temporal
+
+Serão as concentrações de CO2 na regição Norte onde se encontra o bioma
+Amazônico diferente daquele observado nas demais regiões?
+
+``` r
+oco2_br %>% 
+    tidyr::pivot_longer(
+    dplyr::starts_with("flag"),
+    names_to = "região",
+    values_to = "flag"
+  ) %>% 
+  dplyr::filter(flag) %>% 
+  dplyr::mutate(região = stringr::str_remove(região,"flag_")) %>% 
+  dplyr::group_by(região, ano, mes) %>% 
+  dplyr::summarise(media_co2 = mean(xco2, na.rm=TRUE)) %>% 
+    dplyr::mutate(
+    mes_ano = lubridate::make_date(ano, mes, 1)
+  ) %>% 
+  ggplot2::ggplot(ggplot2::aes(x = mes_ano, y = media_co2,
+                               color=região)) +
+  ggplot2::geom_line() +
+  ggplot2::theme_bw()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-40-1.png)<!-- --> A tendência
+de aumento da concentração ao longo do tempo é muito semelhante para
+todos as regiões. Noteriamente a região Norte apresente uma menor
+sazonalidade com as menores variações da concnetração de CO2 atmosférico
+do que aquela comparada às demais regiões.
+
+Vamos adicionar um modelo linear para tendência de aumento.
+
+``` r
+oco2_br %>% 
+    tidyr::pivot_longer(
+    dplyr::starts_with("flag"),
+    names_to = "região",
+    values_to = "flag"
+  ) %>% 
+  dplyr::filter(flag) %>% 
+  dplyr::mutate(região = stringr::str_remove(região,"flag_")) %>% 
+  dplyr::group_by(região, ano, mes) %>% 
+  dplyr::summarise(media_co2 = mean(xco2, na.rm=TRUE)) %>% 
+    dplyr::mutate(
+    mes_ano = lubridate::make_date(ano, mes, 1)
+  ) %>% 
+  ggplot2::ggplot(ggplot2::aes(x = mes_ano, y = media_co2,
+                               color=região)) +
+  ggplot2::geom_line() +
+  ggplot2::theme_bw() +
+  ggplot2::geom_smooth(method = "lm") +
+  ggpubr::stat_regline_equation(ggplot2::aes(
+  label =  paste(..eq.label.., ..rr.label.., sep = "*plain(\",\")~~")))
+```
+
+![](README_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
+
+``` r
+oco2_br %>% 
+    tidyr::pivot_longer(
+    dplyr::starts_with("flag"),
+    names_to = "região",
+    values_to = "flag"
+  ) %>% 
+  dplyr::filter(flag) %>% 
+  dplyr::mutate(região = stringr::str_remove(região,"flag_")) %>% 
+  dplyr::group_by(região, ano, mes) %>% 
+  dplyr::summarise(media_co2 = mean(xco2, na.rm=TRUE)) %>% 
+    dplyr::mutate(
+    mes_ano = lubridate::make_date(ano, mes, 1)
+  )
+#> `summarise()` regrouping output by 'região', 'ano' (override with `.groups` argument)
+#> # A tibble: 365 x 5
+#> # Groups:   região, ano [35]
+#>    região       ano   mes media_co2 mes_ano   
+#>    <chr>      <dbl> <dbl>     <dbl> <date>    
+#>  1 centroeste  2014     9      394. 2014-09-01
+#>  2 centroeste  2014    10      394. 2014-10-01
+#>  3 centroeste  2014    11      394. 2014-11-01
+#>  4 centroeste  2014    12      391. 2014-12-01
+#>  5 centroeste  2015     1      392. 2015-01-01
+#>  6 centroeste  2015     2      392. 2015-02-01
+#>  7 centroeste  2015     3      391. 2015-03-01
+#>  8 centroeste  2015     4      392. 2015-04-01
+#>  9 centroeste  2015     5      394. 2015-05-01
+#> 10 centroeste  2015     6      396. 2015-06-01
+#> # ... with 355 more rows
+```
+
+## Análise de variabilidade espacial para os pontos da região norte.
 
 ``` r
 library(tidyverse)
+library(sp)
+library(gstat)
+library(geobr)
 ```
+
+``` r
+xco2_norte <- oco2_br %>% 
+  filter(flag_norte, ano==2014) %>% 
+  mutate(coordxy = paste0(latitude,longitude)) %>% 
+  group_by(longitude,latitude) %>% 
+  summarise(xco2_media = mean(xco2, na.rm=TRUE) )
+
+xco2_norte %>% 
+  ggplot(aes(x=longitude, y=latitude) ) + 
+  geom_point()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->
+
+De posse desse mapa, vamos fazer a análise de dependência espacial.
+Definindo os valores de X e Y e a fórmula para análise da autocorrelação
+espacial.
+
+``` r
+coordinates(xco2_norte)=~ longitude+latitude  
+form<-xco2_media~1 # fórmula para ser utilizado na função variogram
+```
+
+Verificando o Variograma experimental
+
+``` r
+vari_co2_norte<-variogram(form, data=xco2_norte)
+
+vari_co2_norte %>% 
+  ggplot(aes(x=dist, y=gamma)) +
+  geom_point()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-46-1.png)<!-- -->
+
+## Modelagem
+
+``` r
+# modelagem
+m.xco2 <- fit.variogram(vari_co2_norte,vgm(1,"Sph",10,0))
+m.xco2
+#>   model    psill    range
+#> 1   Nug 4.757485 0.000000
+#> 2   Sph 3.124794 5.044345
+sqr <- attr(m.xco2, "SSErr")
+plot(vari_co2_norte,model=m.xco2, col=1,pl=F,pch=16)
+```
+
+![](README_files/figure-gfm/unnamed-chunk-47-1.png)<!-- -->
+
+Vamos criar o grid refinado para a interpolação
+
+``` r
+x<-xco2_norte$longitude
+y<-xco2_norte$latitude
+dis <- 0.1 #Distância entre pontos
+grid <- expand.grid(X=seq(min(x),max(x),dis), Y=seq(min(y),max(y),dis))
+gridded(grid) = ~ X + Y
+```
+
+Krigragem ordinária
+
+``` r
+ko.fco2<-krige(formula=form, xco2_norte, grid, model=m.xco2, 
+    #nmin=5,
+    #nmax=20,
+    block=c(0,0),
+    nsim=0,
+    na.action=na.pass,
+    debug.level=-1,  # mostra a porcentagem do procedimento 
+    )
+#> [using ordinary kriging]
+#>   0% done  1% done  2% done  3% done  4% done  5% done  6% done  7% done  8% done  9% done 10% done 11% done 12% done 13% done 14% done 15% done 16% done 17% done 18% done 19% done 20% done 21% done 22% done 23% done 24% done 25% done 26% done 27% done 28% done 29% done 30% done 31% done 32% done 33% done 34% done 35% done 36% done 37% done 38% done 39% done 40% done 41% done 42% done 43% done 44% done 45% done 46% done 47% done 48% done 49% done 50% done 51% done 52% done 53% done 54% done 55% done 56% done 57% done 58% done 59% done 60% done 61% done 62% done 63% done 64% done 65% done 66% done 67% done 68% done 69% done 70% done 71% done 72% done 73% done 74% done 75% done 76% done 77% done 78% done 79% done 80% done 81% done 82% done 83% done 84% done 85% done 86% done 87% done 88% done 89% done 90% done 91% done 92% done 93% done 94% done 95% done 96% done 97% done 98% done 99% done100% done
+#spplot(ko.fco2[1], main = "Krigagem Ordinária de FCO2")
+#spplot(ko.fco2, main = "Krigagem Ordinária de FCO2 + mapa de erros associado")
+```
+
+``` r
+pred.iso <- krige(formula=form, xco2_norte, grid, model=m.xco2)
+#> [using ordinary kriging]
+#pred.iso <- krige(formula=form, ~longitude + latitude, xco2_norte, grid, model = m.xco2)
+
+as.data.frame(pred.iso) %>% 
+  ggplot(aes(x=X, y=Y)) + 
+  geom_tile(aes(fill = var1.pred)) +
+  scale_fill_gradient(low = "yellow", high = "blue") + 
+  coord_equal()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-50-1.png)<!-- -->
+
+``` r
+as.data.frame(pred.iso) %>% 
+  mutate(flag_norte = def_pol(X,Y,pol_norte)) %>% 
+  filter(flag_norte) %>% 
+  ggplot(aes(x=X, y=Y),color="black") + 
+  geom_tile(aes(fill = var1.pred)) +
+  scale_fill_gradient(low = "yellow", high = "blue") + 
+  coord_equal()+
+  tema_mapa()+
+  labs(fill="xco2 (ppm)")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-51-1.png)<!-- -->
+
+## Análise de variabilidade espacial para os pontos da região Sudeste
+
+``` r
+xco2_sudeste <- oco2_br %>% 
+  filter(flag_sudeste, ano==2015) %>% 
+  mutate(coordxy = paste0(latitude,longitude)) %>% 
+  group_by(longitude,latitude) %>% 
+  summarise(xco2_media = mean(xco2, na.rm=TRUE) )
+
+xco2_sudeste %>% 
+  ggplot(aes(x=longitude, y=latitude) ) + 
+  geom_point()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-52-1.png)<!-- -->
+
+De posse desse mapa, vamos fazer a análise de dependência espacial.
+Definindo os valores de X e Y e a fórmula para análise da autocorrelação
+espacial.
+
+``` r
+coordinates(xco2_sudeste)=~ longitude+latitude  
+form<-xco2_media~1 # fórmula para ser utilizado na função variogram
+```
+
+Verificando o Variograma experimental
+
+``` r
+vari_co2_sudeste<-variogram(form, data=xco2_sudeste)
+
+vari_co2_sudeste %>% 
+  ggplot(aes(x=dist, y=gamma)) +
+  geom_point()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-54-1.png)<!-- -->
+
+## Modelagem
+
+``` r
+# modelagem
+m.xco2 <- fit.variogram(vari_co2_sudeste,vgm(1,"Sph",10,0))
+#> Warning in fit.variogram(vari_co2_sudeste, vgm(1, "Sph", 10, 0)): singular model
+#> in variogram fit
+#> Warning in fit.variogram(object, model, fit.sills = fit.sills, fit.ranges =
+#> fit.ranges, : singular model in variogram fit
+m.xco2
+#>   model   psill     range
+#> 1   Nug 0.00000 0.0000000
+#> 2   Sph 7.15673 0.1405089
+sqr <- attr(m.xco2, "SSErr")
+plot(vari_co2_sudeste,model=m.xco2, col=1,pl=F,pch=16)
+```
+
+![](README_files/figure-gfm/unnamed-chunk-55-1.png)<!-- -->
+
+Vamos criar o grid refinado para a interpolação
+
+``` r
+x<-xco2_sudeste$longitude
+y<-xco2_sudeste$latitude
+dis <- 0.1 #Distância entre pontos
+grid <- expand.grid(X=seq(min(x),max(x),dis), Y=seq(min(y),max(y),dis))
+gridded(grid) = ~ X + Y
+```
+
+Krigragem ordinária
+
+``` r
+ko.fco2<-krige(formula=form, xco2_sudeste, grid, model=m.xco2, 
+    #nmin=5,
+    #nmax=20,
+    block=c(0,0),
+    nsim=0,
+    na.action=na.pass,
+    debug.level=-1,  # mostra a porcentagem do procedimento 
+    )
+#> [using ordinary kriging]
+#>   9% done 29% done 49% done 69% done 89% done100% done
+#spplot(ko.fco2[1], main = "Krigagem Ordinária de FCO2")
+#spplot(ko.fco2, main = "Krigagem Ordinária de FCO2 + mapa de erros associado")
+```
+
+``` r
+pred.iso <- krige(formula=form, xco2_sudeste, grid, model=m.xco2)
+#> [using ordinary kriging]
+#pred.iso <- krige(formula=form, ~longitude + latitude, xco2_norte, grid, model = m.xco2)
+
+as.data.frame(pred.iso) %>% 
+  ggplot(aes(x=X, y=Y)) + 
+  geom_tile(aes(fill = var1.pred)) +
+  scale_fill_gradient(low = "yellow", high = "blue") + 
+  coord_equal()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-58-1.png)<!-- -->
+
+``` r
+as.data.frame(pred.iso) %>% 
+  mutate(flag_sudeste = def_pol(X,Y,pol_sudeste)) %>% 
+  filter(flag_sudeste) %>% 
+  ggplot(aes(x=X, y=Y),color="black") + 
+  geom_tile(aes(fill = var1.pred)) +
+  scale_fill_gradient(low = "yellow", high = "blue") + 
+  coord_equal()+
+  tema_mapa()+
+  labs(fill="xco2 (ppm)")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-59-1.png)<!-- -->
