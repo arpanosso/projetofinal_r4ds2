@@ -685,10 +685,10 @@ glimpse(oco2_nest)
 Vamos ver alguns mapas
 
 ```{r}
-oco2_nest$geo_sph[1]
-oco2_nest$geo_sph[20]
-oco2_nest$geo_sph[30]
-oco2_nest$geo_sph[120]
+print(oco2_nest$geo_sph[1])
+print(oco2_nest$geo_sph[20])
+print(oco2_nest$geo_sph[30])
+print(oco2_nest$geo_sph[120])
 ```
 
 

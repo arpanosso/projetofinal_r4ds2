@@ -961,7 +961,7 @@ glimpse(oco2_nest)
 Vamos ver alguns mapas
 
 ``` r
-oco2_nest$geo_sph[1]
+print(oco2_nest$geo_sph[1])
 #> [[1]]
 #> Using plotunit = 'm'
 ```
@@ -969,7 +969,7 @@ oco2_nest$geo_sph[1]
 ![](README_files/figure-gfm/unnamed-chunk-58-1.png)<!-- -->
 
 ``` r
-oco2_nest$geo_sph[20]
+print(oco2_nest$geo_sph[20])
 #> [[1]]
 #> Using plotunit = 'm'
 ```
@@ -977,7 +977,7 @@ oco2_nest$geo_sph[20]
 ![](README_files/figure-gfm/unnamed-chunk-58-2.png)<!-- -->
 
 ``` r
-oco2_nest$geo_sph[30]
+print(oco2_nest$geo_sph[30])
 #> [[1]]
 #> Using plotunit = 'm'
 ```
@@ -985,7 +985,7 @@ oco2_nest$geo_sph[30]
 ![](README_files/figure-gfm/unnamed-chunk-58-3.png)<!-- -->
 
 ``` r
-oco2_nest$geo_sph[120]
+print(oco2_nest$geo_sph[120])
 #> [[1]]
 #> Using plotunit = 'm'
 ```
