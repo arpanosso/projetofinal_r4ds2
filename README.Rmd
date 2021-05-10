@@ -608,90 +608,78 @@ as.data.frame(pred.iso) %>%
   labs(fill="xco2 (ppm)")
 ```
 
-## Análise de variabilidade espacial para os pontos da região Sudeste
+## Motivação Final
+### Criar para cada região o mapa de interpolação via krigagem ordinária por estado ao longo por trimestre por ano. Os modelos testados serão Esférico, Gaussiano e Exponencial para modelagem variográfica
 
-
-```{r,message=FALSE}
-xco2_sudeste <- oco2_br %>% 
-  filter(flag_sudeste, ano==2014) %>% 
-  mutate(coordxy = paste0(latitude,longitude)) %>% 
-  group_by(longitude,latitude) %>% 
-  summarise(xco2_media = mean(XCO2, na.rm=TRUE) )
-
-xco2_sudeste %>% 
-  ggplot(aes(x=longitude, y=latitude) ) + 
-  geom_point()
-```
-
-De posse desse mapa, vamos fazer a análise de dependência espacial. Definindo os valores de X e Y e a fórmula para análise da autocorrelação espacial.
-```{r}
-coordinates(xco2_sudeste)=~ longitude+latitude  
-form<-xco2_media~1 # fórmula para ser utilizado na função variogram
-```
-
-Verificando o Variograma experimental
 
 ```{r}
-vari_co2_sudeste<-variogram(form, data=xco2_sudeste)
-
-vari_co2_sudeste %>% 
-  ggplot(aes(x=dist, y=gamma)) +
-  geom_point()
+oco2_nest<-oco2_br %>% 
+  mutate(trimestre = lubridate::quarter(data)) %>% 
+  pivot_longer(
+    starts_with("flag"),
+    names_to = "região",
+    values_to = "flag"
+  ) %>% 
+  filter(flag) %>% 
+  mutate(região = str_remove(região,"flag_")) %>% 
+  group_by(longitude, latitude, região, ano, trimestre) %>% 
+  summarise(media_co2 = mean(XCO2, na.rm=TRUE)) %>% 
+    mutate(
+    trimestre_ano = lubridate::make_date(ano, trimestre, 1),
+    regi = região,
+    id_time = trimestre_ano
+  ) %>% 
+  group_by(região,trimestre_ano) %>% 
+  nest()
 ```
 
-## Modelagem 
-
 ```{r}
-# modelagem
-m.xco2 <- fit.variogram(vari_co2_sudeste,vgm(1,"Sph",10,0))
-m.xco2
-sqr <- attr(m.xco2, "SSErr")
-plot(vari_co2_sudeste,model=m.xco2, col=1,pl=F,pch=16)
-```
-
-Vamos criar o grid refinado para a interpolação
-
-```{r}
-x<-xco2_sudeste$longitude
-y<-xco2_sudeste$latitude
-dis <- 0.1 #Distância entre pontos
-grid <- expand.grid(X=seq(min(x),max(x),dis), Y=seq(min(y),max(y),dis))
-gridded(grid) = ~ X + Y
-```
-
-Krigragem ordinária
-
-```{r}
-ko.fco2<-krige(formula=form, xco2_sudeste, grid, model=m.xco2, 
-	#nmin=5,
-	#nmax=20,
+geoestati <- function(df,modelo="Sph"){
+  sp::coordinates(df)=~ longitude+latitude  
+  form<-media_co2~1
+  vari<-gstat::variogram(form, data=df)
+  alpha <- min(vari$gamma)
+  beta <- max(vari$dist)
+  m.xco2 <- gstat::fit.variogram(vari,gstat::vgm(0,modelo,beta,0))
+  plot(vari,model=m.xco2, col=1,pl=F,pch=16)
+  x<-df$longitude
+  y<-df$latitude
+  dis <- 0.5 #Distância entre pontos
+  grid <- expand.grid(X=seq(min(x),max(x),dis), Y=seq(min(y),max(y),dis))
+  gridded(grid) = ~ X + Y
+  ko.xco2<-gstat::krige(formula=form, df, grid, model=m.xco2,
 	block=c(0,0),
 	nsim=0,
 	na.action=na.pass,
-	debug.level=-1,  # mostra a porcentagem do procedimento 
-	)
-#spplot(ko.fco2[1], main = "Krigagem Ordinária de FCO2")
-#spplot(ko.fco2, main = "Krigagem Ordinária de FCO2 + mapa de erros associado")
+	debug.level=-1,  # mostra a porcentagem do procedimento
+  )
+
+  regiao <- df$regi[1]
+  if(regiao == "norte") pol_ <- pol_norte
+  if(regiao == "nordeste") pol_ <- pol_nordeste
+  if(regiao == "sul") pol_ <- pol_sul
+  if(regiao == "sudente") pol_ <- pol_sudeste
+  if(regiao == "centroeste") pol_ <- pol_centroeste
+  
+   as.data.frame(ko.xco2) %>% 
+   mutate(flag = def_pol(X,Y,pol_)) %>% 
+   filter(flag) %>% 
+   ggplot(aes(x=X, y=Y)) + 
+   geom_tile(aes(fill = var1.pred)) +
+   scale_fill_gradient(low = "yellow", high = "blue") + 
+   coord_equal()+
+   tema_mapa()+
+   labs(fill="xco2 (ppm)",
+        title = paste(regiao,df$id_time[1]) )
+}
 ```
 
 ```{r}
-pred.iso <- krige(formula=form, xco2_sudeste, grid, model=m.xco2)
-#pred.iso <- krige(formula=form, ~longitude + latitude, xco2_norte, grid, model = m.xco2)
+oco2_nest <- oco2_nest %>% 
+  mutate( 
+    geo_sph = map(data,geoestati,modelo="Sph")
+    )
+oco2_nest
+geoestati(oco2_nest$data[[50]])
+```
 
-as.data.frame(pred.iso) %>% 
-  ggplot(aes(x=X, y=Y)) + 
-  geom_tile(aes(fill = var1.pred)) +
-  scale_fill_gradient(low = "yellow", high = "blue") + 
-  coord_equal()
-```
-```{r,error=FALSE,message=FALSE,warning=FALSE}
-as.data.frame(pred.iso) %>% 
-  mutate(flag_sudeste = def_pol(X,Y,pol_sudeste)) %>% 
-  filter(flag_sudeste) %>% 
-  ggplot(aes(x=X, y=Y),color="black") + 
-  geom_tile(aes(fill = var1.pred)) +
-  scale_fill_gradient(low = "yellow", high = "blue") + 
-  coord_equal()+
-  tema_mapa()+
-  labs(fill="xco2 (ppm)")
-```
