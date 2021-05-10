@@ -679,6 +679,16 @@ oco2_nest <- oco2_nest %>%
   mutate( 
     geo_sph = map(data,geoestati,modelo="Sph")
     )
-oco2_nest$geo_sph
+glimpse(oco2_nest)
 ```
+
+Vamos ver alguns mapas
+
+```{r}
+oco2_nest$geo_sph[1]
+oco2_nest$geo_sph[20]
+oco2_nest$geo_sph[30]
+oco2_nest$geo_sph[120]
+```
+
 
