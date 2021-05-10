@@ -10,6 +10,37 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
+Projeto final apresentado os instrutores William Amorim e Caio Lente do
+Curso R como parte das exigências para a finalização do curso de R para
+Ciência de Dados II (Turma Abril 2021).
+
+A caracterização da concentração de CO2 e sua variabilidade
+espaço-temporal é fundamental para o planejamento e execução de medidas
+com o propósito de mitigar as emissões de gases de efeito estufa.
+
+O satélite OCO-2 foi lançado em órbita em julho de 2014 pela NASA, e
+oferece um grande potencial nas estimativas dos fluxos de dióxido de
+carbono (CO2). O satélite mede a concentração de CO2 atmosférico
+indiretamente por meio da intensidade da radiação solar refletida em
+função da presença de dióxido de carbono em uma coluna de ar. Desta
+forma, faz-se a leitura em três faixas de comprimento de onda: a do O2,
+na faixa de 0.757 a 0.775 μm, e as do CO2, que são subdividas em banda
+fraca (1.594 – 1.627 μm) e banda forte (2.043 – 2.087 μm).
+
+Ele foi o primeiro satélite da NASA direcionado para o monitoramento dos
+fluxos de CO2 atmosférico, sendo um dos mais recentes, e vem
+apresentando usos bem diversificados, mostrando-se capaz de monitorar as
+emissões de combustíveis fósseis, fotossíntese, e produção de biomassa.
+
+O objetivo desse material é apresentar os procedimentos básicos para
+aquisição de dados do satélite OCO-2 e processamento inicial em R, para
+tratamento, faxina, retirada de tendência e construção de mapas de
+variabilidade espacial utilizando a variável concentração de dióxido de
+carbono na coluna atmosférica (`xco2`). As análises serão realizadas
+para as diferentes regiões do Brasil no período de 2014 a 2020, perído
+total de dados disponibilizado pela Agencia Espacial Americana (National
+Aeronautics and Space Administration - NASA).
+
 # CO2 Virtual Science Data Environment
 
 O objetivo desse material é apresentar os procedimentos básicos para
@@ -20,6 +51,7 @@ aquisição de dados do satélite OCO-2 e processamento inicial em R.
 **1)** Acesse o endereço <https://co2.jpl.nasa.gov/>
 
 <img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_01.png" width="600px" style="display: block; margin: auto;" />
+
 **2)** Acesse o Browse *OCO-2 Data* em *Level 2 Data Set OCO-2*.
 
 <img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_02.png" width="600px" style="display: block; margin: auto;" />
@@ -78,6 +110,7 @@ arquivo, selecione **CSV FILE**.
 direcionados.
 
 <img src="https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_12.png" width="600px" style="display: block; margin: auto;" />
+
 **13)** Acesse o seu e-mail, será enviado uma mensagem com o endereço
 dos arquivos onde você poderá acompanhar o progresso do processamento de
 seus dados. Ao final dessa etapa um novo e-mail é enviado informando que
@@ -178,17 +211,17 @@ serão necessárias.
 dplyr::glimpse(oco2)
 #> Rows: 364,529
 #> Columns: 11
-#> $ longitude                              <dbl> -74.58225, -74.58225, -74.58...
-#> $ longitude_bnds                         <chr> "-74.70703125:-74.4574652778...
-#> $ latitude                               <dbl> -30.22572489, -29.97654828, ...
-#> $ latitude_bnds                          <chr> "-30.3503131952:-30.10113658...
-#> $ `time (YYYYMMDDHHMMSS)`                <dbl> 2.014091e+13, 2.014091e+13, ...
-#> $ `time_bnds (YYYYMMDDHHMMSS)`           <chr> "20140909000000:201409100000...
-#> $ `altitude (km)`                        <dbl> 3307.8, 3307.8, 3307.8, 3307...
-#> $ `alt_bnds (km)`                        <chr> "0.0:6615.59960938", "0.0:66...
-#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.012406800, 0.010696600, -0...
-#> $ fluorescence_offset_relative_757nm_idp <dbl> -3.58630e+00, 8.81219e-02, -...
-#> $ `xco2 (Moles Mole^{-1})`               <dbl> 0.000394333, 0.000395080, 0....
+#> $ longitude                              <dbl> -74.58225, -74.58225, -74.58225~
+#> $ longitude_bnds                         <chr> "-74.70703125:-74.4574652778", ~
+#> $ latitude                               <dbl> -30.22572489, -29.97654828, -29~
+#> $ latitude_bnds                          <chr> "-30.3503131952:-30.1011365845"~
+#> $ `time (YYYYMMDDHHMMSS)`                <dbl> 2.014091e+13, 2.014091e+13, 2.0~
+#> $ `time_bnds (YYYYMMDDHHMMSS)`           <chr> "20140909000000:20140910000000"~
+#> $ `altitude (km)`                        <dbl> 3307.8, 3307.8, 3307.8, 3307.8,~
+#> $ `alt_bnds (km)`                        <chr> "0.0:6615.59960938", "0.0:6615.~
+#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.012406800, 0.010696600, -0.00~
+#> $ fluorescence_offset_relative_757nm_idp <dbl> -3.58630e+00, 8.81219e-02, -3.6~
+#> $ `xco2 (Moles Mole^{-1})`               <dbl> 0.000394333, 0.000395080, 0.000~
 ```
 
 Inicialmente devemos transformar os dados de concentração de CO2,
@@ -206,8 +239,8 @@ oco2<-oco2 %>%
            dia_semana = lubridate::wday(data))
 ```
 
-Existe uma tendência de aumento monotônica mundial da concetração de CO2
-na atmosfera, assim, ela deve ser retirar para podermos observar as
+Existe uma tendência de aumento monotônica mundial da concentração de
+CO2 na atmosfera, assim, ela deve ser retirar para podermos observar as
 tendências gerionais.
 
 ``` r
@@ -281,27 +314,27 @@ oco2 <- oco2 %>%
 dplyr::glimpse(oco2)
 #> Rows: 364,529
 #> Columns: 21
-#> $ longitude                              <dbl> -72.58572, -72.33615, -72.33...
-#> $ longitude_bnds                         <chr> "-72.7105034722:-72.4609375"...
-#> $ latitude                               <dbl> 6.154060, 5.157354, 5.406530...
-#> $ latitude_bnds                          <chr> "6.02947197682:6.27864858759...
-#> $ `time (YYYYMMDDHHMMSS)`                <dbl> 2.014091e+13, 2.014091e+13, ...
-#> $ `time_bnds (YYYYMMDDHHMMSS)`           <chr> "20140906000000:201409070000...
-#> $ `altitude (km)`                        <dbl> 3307.8, 3307.8, 3307.8, 3307...
-#> $ `alt_bnds (km)`                        <chr> "0.0:6615.59960938", "0.0:66...
-#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.01034260, 0.01597090, 0.00...
-#> $ fluorescence_offset_relative_757nm_idp <dbl> 0.00158627, 0.00160726, 0.00...
-#> $ `xco2 (Moles Mole^{-1})`               <dbl> 0.000391368, 0.000389822, 0....
-#> $ xco2                                   <dbl> 391.368, 389.822, 388.482, 3...
-#> $ data                                   <dttm> 2014-09-06 12:00:00, 2014-0...
-#> $ ano                                    <dbl> 2014, 2014, 2014, 2014, 2014...
-#> $ mes                                    <dbl> 9, 9, 9, 9, 9, 9, 9, 9, 9, 9...
-#> $ dia                                    <int> 6, 6, 6, 6, 6, 6, 6, 6, 6, 6...
-#> $ dia_semana                             <dbl> 7, 7, 7, 7, 7, 7, 7, 7, 7, 7...
-#> $ x                                      <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 1...
-#> $ xco2_est                               <dbl> 392.8449, 392.8450, 392.8450...
-#> $ delta                                  <dbl> 1.4769085, 3.0229529, 4.3629...
-#> $ XCO2                                   <dbl> 383.2815, 381.7354, 380.3954...
+#> $ longitude                              <dbl> -72.58572, -72.33615, -72.33615~
+#> $ longitude_bnds                         <chr> "-72.7105034722:-72.4609375", "~
+#> $ latitude                               <dbl> 6.154060, 5.157354, 5.406530, 3~
+#> $ latitude_bnds                          <chr> "6.02947197682:6.27864858759", ~
+#> $ `time (YYYYMMDDHHMMSS)`                <dbl> 2.014091e+13, 2.014091e+13, 2.0~
+#> $ `time_bnds (YYYYMMDDHHMMSS)`           <chr> "20140906000000:20140907000000"~
+#> $ `altitude (km)`                        <dbl> 3307.8, 3307.8, 3307.8, 3307.8,~
+#> $ `alt_bnds (km)`                        <chr> "0.0:6615.59960938", "0.0:6615.~
+#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.01034260, 0.01597090, 0.00988~
+#> $ fluorescence_offset_relative_757nm_idp <dbl> 0.00158627, 0.00160726, 0.00848~
+#> $ `xco2 (Moles Mole^{-1})`               <dbl> 0.000391368, 0.000389822, 0.000~
+#> $ xco2                                   <dbl> 391.368, 389.822, 388.482, 390.~
+#> $ data                                   <dttm> 2014-09-06 12:00:00, 2014-09-0~
+#> $ ano                                    <dbl> 2014, 2014, 2014, 2014, 2014, 2~
+#> $ mes                                    <dbl> 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9~
+#> $ dia                                    <int> 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6~
+#> $ dia_semana                             <dbl> 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7~
+#> $ x                                      <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ~
+#> $ xco2_est                               <dbl> 392.8449, 392.8450, 392.8450, 3~
+#> $ delta                                  <dbl> 1.4769085, 3.0229529, 4.3629972~
+#> $ XCO2                                   <dbl> 383.2815, 381.7354, 380.3954, 3~
 ```
 
 Plot da concentração de CO2 no ano de 2014, primeiro ano de utilização
@@ -359,7 +392,7 @@ br %>%
 
 ![](README_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
 
-A partir da função point.in.pol do pacote sp, criamos afunção abaixo
+A partir da função point.in.pol do pacote sp, criamos a função abaixo
 para facilitar o processo de filtragem em função de um polígono
 definido.
 
@@ -403,33 +436,33 @@ oco2 <- oco2 %>%
 dplyr::glimpse(oco2)
 #> Rows: 364,529
 #> Columns: 27
-#> $ longitude                              <dbl> -72.58572, -72.33615, -72.33...
-#> $ longitude_bnds                         <chr> "-72.7105034722:-72.4609375"...
-#> $ latitude                               <dbl> 6.154060, 5.157354, 5.406530...
-#> $ latitude_bnds                          <chr> "6.02947197682:6.27864858759...
-#> $ `time (YYYYMMDDHHMMSS)`                <dbl> 2.014091e+13, 2.014091e+13, ...
-#> $ `time_bnds (YYYYMMDDHHMMSS)`           <chr> "20140906000000:201409070000...
-#> $ `altitude (km)`                        <dbl> 3307.8, 3307.8, 3307.8, 3307...
-#> $ `alt_bnds (km)`                        <chr> "0.0:6615.59960938", "0.0:66...
-#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.01034260, 0.01597090, 0.00...
-#> $ fluorescence_offset_relative_757nm_idp <dbl> 0.00158627, 0.00160726, 0.00...
-#> $ `xco2 (Moles Mole^{-1})`               <dbl> 0.000391368, 0.000389822, 0....
-#> $ xco2                                   <dbl> 391.368, 389.822, 388.482, 3...
-#> $ data                                   <dttm> 2014-09-06 12:00:00, 2014-0...
-#> $ ano                                    <dbl> 2014, 2014, 2014, 2014, 2014...
-#> $ mes                                    <dbl> 9, 9, 9, 9, 9, 9, 9, 9, 9, 9...
-#> $ dia                                    <int> 6, 6, 6, 6, 6, 6, 6, 6, 6, 6...
-#> $ dia_semana                             <dbl> 7, 7, 7, 7, 7, 7, 7, 7, 7, 7...
-#> $ x                                      <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 1...
-#> $ xco2_est                               <dbl> 392.8449, 392.8450, 392.8450...
-#> $ delta                                  <dbl> 1.4769085, 3.0229529, 4.3629...
-#> $ XCO2                                   <dbl> 383.2815, 381.7354, 380.3954...
-#> $ flag_br                                <lgl> FALSE, FALSE, FALSE, FALSE, ...
-#> $ flag_norte                             <lgl> FALSE, FALSE, FALSE, FALSE, ...
-#> $ flag_nordeste                          <lgl> FALSE, FALSE, FALSE, FALSE, ...
-#> $ flag_sul                               <lgl> FALSE, FALSE, FALSE, FALSE, ...
-#> $ flag_sudeste                           <lgl> FALSE, FALSE, FALSE, FALSE, ...
-#> $ flag_centroeste                        <lgl> FALSE, FALSE, FALSE, FALSE, ...
+#> $ longitude                              <dbl> -72.58572, -72.33615, -72.33615~
+#> $ longitude_bnds                         <chr> "-72.7105034722:-72.4609375", "~
+#> $ latitude                               <dbl> 6.154060, 5.157354, 5.406530, 3~
+#> $ latitude_bnds                          <chr> "6.02947197682:6.27864858759", ~
+#> $ `time (YYYYMMDDHHMMSS)`                <dbl> 2.014091e+13, 2.014091e+13, 2.0~
+#> $ `time_bnds (YYYYMMDDHHMMSS)`           <chr> "20140906000000:20140907000000"~
+#> $ `altitude (km)`                        <dbl> 3307.8, 3307.8, 3307.8, 3307.8,~
+#> $ `alt_bnds (km)`                        <chr> "0.0:6615.59960938", "0.0:6615.~
+#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.01034260, 0.01597090, 0.00988~
+#> $ fluorescence_offset_relative_757nm_idp <dbl> 0.00158627, 0.00160726, 0.00848~
+#> $ `xco2 (Moles Mole^{-1})`               <dbl> 0.000391368, 0.000389822, 0.000~
+#> $ xco2                                   <dbl> 391.368, 389.822, 388.482, 390.~
+#> $ data                                   <dttm> 2014-09-06 12:00:00, 2014-09-0~
+#> $ ano                                    <dbl> 2014, 2014, 2014, 2014, 2014, 2~
+#> $ mes                                    <dbl> 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9~
+#> $ dia                                    <int> 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6~
+#> $ dia_semana                             <dbl> 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7~
+#> $ x                                      <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ~
+#> $ xco2_est                               <dbl> 392.8449, 392.8450, 392.8450, 3~
+#> $ delta                                  <dbl> 1.4769085, 3.0229529, 4.3629972~
+#> $ XCO2                                   <dbl> 383.2815, 381.7354, 380.3954, 3~
+#> $ flag_br                                <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
+#> $ flag_norte                             <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
+#> $ flag_nordeste                          <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
+#> $ flag_sul                               <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
+#> $ flag_sudeste                           <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
+#> $ flag_centroeste                        <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
 ```
 
 Plot dos pontos do polígono br\_pol.
@@ -449,7 +482,7 @@ br %>%
 
 ![](README_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
 
-Obseve que houve uma falha na região nordeste, podemos então pedir os
+Observe que houve uma falha na região nordeste, podemos então pedir os
 pontos presentes do polígono br ou nordeste.
 
 ``` r
@@ -506,7 +539,7 @@ br %>%
 ![](README_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
 
 Agora podemos filtrar os pontos para o território brasileiro e salvar o
-arquivo na pasta **data/oco2\_br.rds**.
+arquivo no diretório **data/oco2\_br.rds**.
 
 ``` r
 oco2_br <- oco2 %>%
@@ -515,7 +548,7 @@ oco2_br <- oco2 %>%
 readr::write_rds(oco2_br,"data/oco2_br.rds")
 ```
 
-## Análise de série temporal
+## Análise de série espaço-temporal
 
 Serão as concentrações de CO2 na regição Norte onde se encontra o bioma
 Amazônico diferente daquele observado nas demais regiões?
@@ -542,35 +575,10 @@ oco2_br %>%
 
 ![](README_files/figure-gfm/unnamed-chunk-44-1.png)<!-- --> A região
 Norte apresenta uma menor sazonalidade com as menores variações da
-concnetração de CO2 atmosférico do que aquela comparada às demais
-regiões.
+concentração de CO2 atmosférico quando comparada às demais regiões.
 
-Vamos adicionar um modelo linear para tendência de aumento.
-
-``` r
-oco2_br %>% 
-    tidyr::pivot_longer(
-    dplyr::starts_with("flag"),
-    names_to = "região",
-    values_to = "flag"
-  ) %>% 
-  dplyr::filter(flag) %>% 
-  dplyr::mutate(região = stringr::str_remove(região,"flag_")) %>% 
-  dplyr::group_by(região, ano, mes) %>% 
-  dplyr::summarise(media_co2 = mean(XCO2, na.rm=TRUE)) %>% 
-    dplyr::mutate(
-    mes_ano = lubridate::make_date(ano, mes, 1)
-  ) %>% 
-  ggplot2::ggplot(ggplot2::aes(x = mes_ano, y = media_co2,
-                               color=região)) +
-  ggplot2::geom_line() +
-  ggplot2::theme_bw() +
-  ggplot2::geom_smooth(method = "lm") +
-  ggpubr::stat_regline_equation(ggplot2::aes(
-  label =  paste(..eq.label.., ..rr.label.., sep = "*plain(\",\")~~")))
-```
-
-![](README_files/figure-gfm/unnamed-chunk-45-1.png)<!-- -->
+Vamos criar a coluna região para identicação dos pontos. Além disso será
+criado a coluna mes\_ano.
 
 ``` r
 oco2_br %>% 
@@ -586,7 +594,6 @@ oco2_br %>%
     dplyr::mutate(
     mes_ano = lubridate::make_date(ano, mes, 1)
   )
-#> `summarise()` regrouping output by 'região', 'ano' (override with `.groups` argument)
 #> # A tibble: 365 x 5
 #> # Groups:   região, ano [35]
 #>    região       ano   mes media_co2 mes_ano   
@@ -604,12 +611,20 @@ oco2_br %>%
 #> # ... with 355 more rows
 ```
 
-## Análise de variabilidade espacial para os pontos da região norte.
+## Análise de variabilidade espaço-temporal para os pontos da região norte.
 
 ``` r
 library(tidyverse)
+#> Warning: package 'ggplot2' was built under R version 4.0.4
+#> Warning: package 'tibble' was built under R version 4.0.4
+#> Warning: package 'tidyr' was built under R version 4.0.4
+#> Warning: package 'readr' was built under R version 4.0.4
+#> Warning: package 'dplyr' was built under R version 4.0.4
+#> Warning: package 'forcats' was built under R version 4.0.5
 library(sp)
+#> Warning: package 'sp' was built under R version 4.0.4
 library(gstat)
+#> Warning: package 'gstat' was built under R version 4.0.4
 library(geobr)
 ```
 
@@ -625,11 +640,10 @@ xco2_norte %>%
   geom_point()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-47-1.png)<!-- -->
 
 De posse desse mapa, vamos fazer a análise de dependência espacial.
-Definindo os valores de X e Y e a fórmula para análise da autocorrelação
-espacial.
+Definindo os valores de X e Y e a fórmula para análise variográfica.
 
 ``` r
 coordinates(xco2_norte)=~ longitude+latitude  
@@ -640,28 +654,23 @@ Verificando o Variograma experimental
 
 ``` r
 vari_co2_norte<-variogram(form, data=xco2_norte)
-
 vari_co2_norte %>% 
   ggplot(aes(x=dist, y=gamma)) +
   geom_point()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-50-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-49-1.png)<!-- -->
 
-## Modelagem
+## Modelagem espaço-temporal
+
+Vamos ajustar um modela esférico ao variograma experimental anterior.
 
 ``` r
-# modelagem
 m.xco2 <- fit.variogram(vari_co2_norte,vgm(1,"Sph",10,0))
-m.xco2
-#>   model    psill    range
-#> 1   Nug 4.760647 0.000000
-#> 2   Sph 3.157257 5.081049
-sqr <- attr(m.xco2, "SSErr")
 plot(vari_co2_norte,model=m.xco2, col=1,pl=F,pch=16)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-51-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-50-1.png)<!-- -->
 
 Vamos criar o grid refinado para a interpolação
 
@@ -673,39 +682,36 @@ grid <- expand.grid(X=seq(min(x),max(x),dis), Y=seq(min(y),max(y),dis))
 gridded(grid) = ~ X + Y
 ```
 
-Krigragem ordinária
+Krigragem ordinária (KO)
+
+Utilizando o algorítmo de KO, vamos estimar xco2 nos locais não
+amostrados.
 
 ``` r
 ko.fco2<-krige(formula=form, xco2_norte, grid, model=m.xco2, 
-    #nmin=5,
-    #nmax=20,
     block=c(0,0),
     nsim=0,
     na.action=na.pass,
-    debug.level=-1,  # mostra a porcentagem do procedimento 
+    debug.level=-1,  
     )
 #> [using ordinary kriging]
 #>   0% done  1% done  2% done  3% done  4% done  5% done  6% done  7% done  8% done  9% done 10% done 11% done 12% done 13% done 14% done 15% done 16% done 17% done 18% done 19% done 20% done 21% done 22% done 23% done 24% done 25% done 26% done 27% done 28% done 29% done 30% done 31% done 32% done 33% done 34% done 35% done 36% done 37% done 38% done 39% done 40% done 41% done 42% done 43% done 44% done 45% done 46% done 47% done 48% done 49% done 50% done 51% done 52% done 53% done 54% done 55% done 56% done 57% done 58% done 59% done 60% done 61% done 62% done 63% done 64% done 65% done 66% done 67% done 68% done 69% done 70% done 71% done 72% done 73% done 74% done 75% done 76% done 77% done 78% done 79% done 80% done 81% done 82% done 83% done 84% done 85% done 86% done 87% done 88% done 89% done 90% done 91% done 92% done 93% done 94% done 95% done 96% done 97% done 98% done 99% done100% done
-#spplot(ko.fco2[1], main = "Krigagem Ordinária de FCO2")
-#spplot(ko.fco2, main = "Krigagem Ordinária de FCO2 + mapa de erros associado")
 ```
 
-``` r
-pred.iso <- krige(formula=form, xco2_norte, grid, model=m.xco2)
-#> [using ordinary kriging]
-#pred.iso <- krige(formula=form, ~longitude + latitude, xco2_norte, grid, model = m.xco2)
+Mapa de padrões espaciais para o Ano de 2014 da região Norte.
 
-as.data.frame(pred.iso) %>% 
+``` r
+as.data.frame(ko.fco2) %>% 
   ggplot(aes(x=X, y=Y)) + 
   geom_tile(aes(fill = var1.pred)) +
   scale_fill_gradient(low = "yellow", high = "blue") + 
   coord_equal()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-54-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-53-1.png)<!-- -->
 
 ``` r
-as.data.frame(pred.iso) %>% 
+as.data.frame(ko.fco2) %>% 
   mutate(flag_norte = def_pol(X,Y,pol_norte)) %>% 
   filter(flag_norte) %>% 
   ggplot(aes(x=X, y=Y),color="black") + 
@@ -716,111 +722,879 @@ as.data.frame(pred.iso) %>%
   labs(fill="xco2 (ppm)")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-55-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-54-1.png)<!-- -->
 
-## Análise de variabilidade espacial para os pontos da região Sudeste
+## Motivação Final
+
+### Criar para cada região o mapa de interpolação via krigagem ordinária por região ao longo dos trimestres dos anos de 2014 a 2020.
 
 ``` r
-xco2_sudeste <- oco2_br %>% 
-  filter(flag_sudeste, ano==2014) %>% 
-  mutate(coordxy = paste0(latitude,longitude)) %>% 
-  group_by(longitude,latitude) %>% 
-  summarise(xco2_media = mean(XCO2, na.rm=TRUE) )
-
-xco2_sudeste %>% 
-  ggplot(aes(x=longitude, y=latitude) ) + 
-  geom_point()
+oco2_nest<-oco2_br %>% 
+  mutate(trimestre = lubridate::quarter(data)) %>% 
+  pivot_longer(
+    starts_with("flag"),
+    names_to = "região",
+    values_to = "flag"
+  ) %>% 
+  filter(flag) %>% 
+  mutate(região = str_remove(região,"flag_")) %>% 
+  group_by(longitude, latitude, região, ano, trimestre) %>% 
+  summarise(media_co2 = mean(XCO2, na.rm=TRUE)) %>% 
+    mutate(
+    trimestre_ano = lubridate::make_date(ano, trimestre, 1),
+    regi = região,
+    id_time = trimestre_ano
+  ) %>% 
+  group_by(região,trimestre_ano) %>% 
+  nest() 
+head(oco2_nest)
+#> # A tibble: 6 x 3
+#> # Groups:   região, trimestre_ano [6]
+#>   região trimestre_ano data                    
+#>   <chr>  <date>        <list>                  
+#> 1 norte  2017-03-01    <tibble[,7] [1,476 x 7]>
+#> 2 norte  2020-03-01    <tibble[,7] [1,637 x 7]>
+#> 3 norte  2015-04-01    <tibble[,7] [829 x 7]>  
+#> 4 norte  2019-04-01    <tibble[,7] [798 x 7]>  
+#> 5 norte  2014-04-01    <tibble[,7] [820 x 7]>  
+#> 6 norte  2016-04-01    <tibble[,7] [899 x 7]>
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-56-1.png)<!-- -->
-
-De posse desse mapa, vamos fazer a análise de dependência espacial.
-Definindo os valores de X e Y e a fórmula para análise da autocorrelação
-espacial.
+Criaremos uma função para modelagem e krigagem como apresentado
+anterioremente.
 
 ``` r
-coordinates(xco2_sudeste)=~ longitude+latitude  
-form<-xco2_media~1 # fórmula para ser utilizado na função variogram
-```
+geoestati <- function(df,modelo="Sph"){
+  #Variograma
+  sp::coordinates(df)=~ longitude+latitude  
+  form<-media_co2~1
+  vari<-gstat::variogram(form, data=df)
+  alpha <- max(vari$gamma)
+  beta <- max(vari$dist)
+  m.xco2 <- gstat::fit.variogram(vari,gstat::vgm(0,modelo,beta,0))
+  if(m.xco2$range[2] < 0 ) m.xco2 <- gstat::fit.variogram(vari,gstat::vgm(alpha,modelo,beta,0))
+  
+  # Adensamento de pontos
+  x<-df$longitude
+  y<-df$latitude
+  dis <- 0.5 # usamos a malha padrão
+  grid <- expand.grid(X=seq(min(x),max(x),dis), Y=seq(min(y),max(y),dis))
+  gridded(grid) = ~ X + Y
 
-Verificando o Variograma experimental
-
-``` r
-vari_co2_sudeste<-variogram(form, data=xco2_sudeste)
-
-vari_co2_sudeste %>% 
-  ggplot(aes(x=dist, y=gamma)) +
-  geom_point()
-```
-
-![](README_files/figure-gfm/unnamed-chunk-58-1.png)<!-- -->
-
-## Modelagem
-
-``` r
-# modelagem
-m.xco2 <- fit.variogram(vari_co2_sudeste,vgm(1,"Sph",10,0))
-m.xco2
-#>   model    psill     range
-#> 1   Nug 4.839028 0.0000000
-#> 2   Sph 2.775200 0.8355176
-sqr <- attr(m.xco2, "SSErr")
-plot(vari_co2_sudeste,model=m.xco2, col=1,pl=F,pch=16)
-```
-
-![](README_files/figure-gfm/unnamed-chunk-59-1.png)<!-- -->
-
-Vamos criar o grid refinado para a interpolação
-
-``` r
-x<-xco2_sudeste$longitude
-y<-xco2_sudeste$latitude
-dis <- 0.1 #Distância entre pontos
-grid <- expand.grid(X=seq(min(x),max(x),dis), Y=seq(min(y),max(y),dis))
-gridded(grid) = ~ X + Y
-```
-
-Krigragem ordinária
-
-``` r
-ko.fco2<-krige(formula=form, xco2_sudeste, grid, model=m.xco2, 
-    #nmin=5,
-    #nmax=20,
+  #Krigagem ordinária
+  ko.xco2<-gstat::krige(formula=form, df, grid, model=m.xco2,
     block=c(0,0),
     nsim=0,
-    na.action=na.pass,
-    debug.level=-1,  # mostra a porcentagem do procedimento 
+    na.action=na.pass
+  )
+
+  # Definindo os polígonos - Dependência externa da função
+  regiao <- df$regi[1]
+  if(regiao == "norte") pol_ <- pol_norte
+  if(regiao == "nordeste") pol_ <- pol_nordeste
+  if(regiao == "sul") pol_ <- pol_sul
+  if(regiao == "sudeste") pol_ <- pol_sudeste
+  if(regiao == "centroeste") pol_ <- pol_centroeste
+
+
+  # Saída do mapa krigado
+   as.data.frame(ko.xco2) %>%
+   mutate(flag = def_pol(X,Y,pol_)) %>%
+   filter(flag) %>%
+   ggplot(aes(x=X, y=Y)) +
+   geom_tile(aes(fill = var1.pred)) +
+   scale_fill_gradient(low = "yellow", high = "blue") +
+   coord_equal()+
+   tema_mapa()+
+   labs(fill="xco2 (ppm)",
+        title = paste(regiao,df$id_time[1]) )
+}
+```
+
+Laço para criar os mapas por trimestre.
+
+``` r
+oco2_nest <- oco2_nest %>% 
+  mutate( 
+    geo_sph = map(data,geoestati,modelo="Sph")
     )
 #> [using ordinary kriging]
-#>   2% done 21% done 40% done 60% done 81% done100% done
-#spplot(ko.fco2[1], main = "Krigagem Ordinária de FCO2")
-#spplot(ko.fco2, main = "Krigagem Ordinária de FCO2 + mapa de erros associado")
-```
-
-``` r
-pred.iso <- krige(formula=form, xco2_sudeste, grid, model=m.xco2)
 #> [using ordinary kriging]
-#pred.iso <- krige(formula=form, ~longitude + latitude, xco2_norte, grid, model = m.xco2)
-
-as.data.frame(pred.iso) %>% 
-  ggplot(aes(x=X, y=Y)) + 
-  geom_tile(aes(fill = var1.pred)) +
-  scale_fill_gradient(low = "yellow", high = "blue") + 
-  coord_equal()
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+#> [using ordinary kriging]
+oco2_nest$geo_sph
+#> [[1]]
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-62-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-57-1.png)<!-- -->
 
-``` r
-as.data.frame(pred.iso) %>% 
-  mutate(flag_sudeste = def_pol(X,Y,pol_sudeste)) %>% 
-  filter(flag_sudeste) %>% 
-  ggplot(aes(x=X, y=Y),color="black") + 
-  geom_tile(aes(fill = var1.pred)) +
-  scale_fill_gradient(low = "yellow", high = "blue") + 
-  coord_equal()+
-  tema_mapa()+
-  labs(fill="xco2 (ppm)")
-```
+    #> 
+    #> [[2]]
 
-![](README_files/figure-gfm/unnamed-chunk-63-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-57-2.png)<!-- -->
+
+    #> 
+    #> [[3]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-3.png)<!-- -->
+
+    #> 
+    #> [[4]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-4.png)<!-- -->
+
+    #> 
+    #> [[5]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-5.png)<!-- -->
+
+    #> 
+    #> [[6]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-6.png)<!-- -->
+
+    #> 
+    #> [[7]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-7.png)<!-- -->
+
+    #> 
+    #> [[8]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-8.png)<!-- -->
+
+    #> 
+    #> [[9]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-9.png)<!-- -->
+
+    #> 
+    #> [[10]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-10.png)<!-- -->
+
+    #> 
+    #> [[11]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-11.png)<!-- -->
+
+    #> 
+    #> [[12]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-12.png)<!-- -->
+
+    #> 
+    #> [[13]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-13.png)<!-- -->
+
+    #> 
+    #> [[14]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-14.png)<!-- -->
+
+    #> 
+    #> [[15]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-15.png)<!-- -->
+
+    #> 
+    #> [[16]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-16.png)<!-- -->
+
+    #> 
+    #> [[17]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-17.png)<!-- -->
+
+    #> 
+    #> [[18]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-18.png)<!-- -->
+
+    #> 
+    #> [[19]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-19.png)<!-- -->
+
+    #> 
+    #> [[20]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-20.png)<!-- -->
+
+    #> 
+    #> [[21]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-21.png)<!-- -->
+
+    #> 
+    #> [[22]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-22.png)<!-- -->
+
+    #> 
+    #> [[23]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-23.png)<!-- -->
+
+    #> 
+    #> [[24]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-24.png)<!-- -->
+
+    #> 
+    #> [[25]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-25.png)<!-- -->
+
+    #> 
+    #> [[26]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-26.png)<!-- -->
+
+    #> 
+    #> [[27]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-27.png)<!-- -->
+
+    #> 
+    #> [[28]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-28.png)<!-- -->
+
+    #> 
+    #> [[29]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-29.png)<!-- -->
+
+    #> 
+    #> [[30]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-30.png)<!-- -->
+
+    #> 
+    #> [[31]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-31.png)<!-- -->
+
+    #> 
+    #> [[32]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-32.png)<!-- -->
+
+    #> 
+    #> [[33]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-33.png)<!-- -->
+
+    #> 
+    #> [[34]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-34.png)<!-- -->
+
+    #> 
+    #> [[35]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-35.png)<!-- -->
+
+    #> 
+    #> [[36]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-36.png)<!-- -->
+
+    #> 
+    #> [[37]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-37.png)<!-- -->
+
+    #> 
+    #> [[38]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-38.png)<!-- -->
+
+    #> 
+    #> [[39]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-39.png)<!-- -->
+
+    #> 
+    #> [[40]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-40.png)<!-- -->
+
+    #> 
+    #> [[41]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-41.png)<!-- -->
+
+    #> 
+    #> [[42]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-42.png)<!-- -->
+
+    #> 
+    #> [[43]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-43.png)<!-- -->
+
+    #> 
+    #> [[44]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-44.png)<!-- -->
+
+    #> 
+    #> [[45]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-45.png)<!-- -->
+
+    #> 
+    #> [[46]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-46.png)<!-- -->
+
+    #> 
+    #> [[47]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-47.png)<!-- -->
+
+    #> 
+    #> [[48]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-48.png)<!-- -->
+
+    #> 
+    #> [[49]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-49.png)<!-- -->
+
+    #> 
+    #> [[50]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-50.png)<!-- -->
+
+    #> 
+    #> [[51]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-51.png)<!-- -->
+
+    #> 
+    #> [[52]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-52.png)<!-- -->
+
+    #> 
+    #> [[53]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-53.png)<!-- -->
+
+    #> 
+    #> [[54]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-54.png)<!-- -->
+
+    #> 
+    #> [[55]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-55.png)<!-- -->
+
+    #> 
+    #> [[56]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-56.png)<!-- -->
+
+    #> 
+    #> [[57]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-57.png)<!-- -->
+
+    #> 
+    #> [[58]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-58.png)<!-- -->
+
+    #> 
+    #> [[59]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-59.png)<!-- -->
+
+    #> 
+    #> [[60]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-60.png)<!-- -->
+
+    #> 
+    #> [[61]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-61.png)<!-- -->
+
+    #> 
+    #> [[62]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-62.png)<!-- -->
+
+    #> 
+    #> [[63]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-63.png)<!-- -->
+
+    #> 
+    #> [[64]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-64.png)<!-- -->
+
+    #> 
+    #> [[65]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-65.png)<!-- -->
+
+    #> 
+    #> [[66]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-66.png)<!-- -->
+
+    #> 
+    #> [[67]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-67.png)<!-- -->
+
+    #> 
+    #> [[68]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-68.png)<!-- -->
+
+    #> 
+    #> [[69]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-69.png)<!-- -->
+
+    #> 
+    #> [[70]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-70.png)<!-- -->
+
+    #> 
+    #> [[71]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-71.png)<!-- -->
+
+    #> 
+    #> [[72]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-72.png)<!-- -->
+
+    #> 
+    #> [[73]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-73.png)<!-- -->
+
+    #> 
+    #> [[74]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-74.png)<!-- -->
+
+    #> 
+    #> [[75]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-75.png)<!-- -->
+
+    #> 
+    #> [[76]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-76.png)<!-- -->
+
+    #> 
+    #> [[77]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-77.png)<!-- -->
+
+    #> 
+    #> [[78]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-78.png)<!-- -->
+
+    #> 
+    #> [[79]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-79.png)<!-- -->
+
+    #> 
+    #> [[80]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-80.png)<!-- -->
+
+    #> 
+    #> [[81]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-81.png)<!-- -->
+
+    #> 
+    #> [[82]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-82.png)<!-- -->
+
+    #> 
+    #> [[83]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-83.png)<!-- -->
+
+    #> 
+    #> [[84]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-84.png)<!-- -->
+
+    #> 
+    #> [[85]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-85.png)<!-- -->
+
+    #> 
+    #> [[86]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-86.png)<!-- -->
+
+    #> 
+    #> [[87]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-87.png)<!-- -->
+
+    #> 
+    #> [[88]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-88.png)<!-- -->
+
+    #> 
+    #> [[89]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-89.png)<!-- -->
+
+    #> 
+    #> [[90]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-90.png)<!-- -->
+
+    #> 
+    #> [[91]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-91.png)<!-- -->
+
+    #> 
+    #> [[92]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-92.png)<!-- -->
+
+    #> 
+    #> [[93]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-93.png)<!-- -->
+
+    #> 
+    #> [[94]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-94.png)<!-- -->
+
+    #> 
+    #> [[95]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-95.png)<!-- -->
+
+    #> 
+    #> [[96]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-96.png)<!-- -->
+
+    #> 
+    #> [[97]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-97.png)<!-- -->
+
+    #> 
+    #> [[98]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-98.png)<!-- -->
+
+    #> 
+    #> [[99]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-99.png)<!-- -->
+
+    #> 
+    #> [[100]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-100.png)<!-- -->
+
+    #> 
+    #> [[101]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-101.png)<!-- -->
+
+    #> 
+    #> [[102]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-102.png)<!-- -->
+
+    #> 
+    #> [[103]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-103.png)<!-- -->
+
+    #> 
+    #> [[104]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-104.png)<!-- -->
+
+    #> 
+    #> [[105]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-105.png)<!-- -->
+
+    #> 
+    #> [[106]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-106.png)<!-- -->
+
+    #> 
+    #> [[107]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-107.png)<!-- -->
+
+    #> 
+    #> [[108]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-108.png)<!-- -->
+
+    #> 
+    #> [[109]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-109.png)<!-- -->
+
+    #> 
+    #> [[110]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-110.png)<!-- -->
+
+    #> 
+    #> [[111]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-111.png)<!-- -->
+
+    #> 
+    #> [[112]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-112.png)<!-- -->
+
+    #> 
+    #> [[113]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-113.png)<!-- -->
+
+    #> 
+    #> [[114]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-114.png)<!-- -->
+
+    #> 
+    #> [[115]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-115.png)<!-- -->
+
+    #> 
+    #> [[116]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-116.png)<!-- -->
+
+    #> 
+    #> [[117]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-117.png)<!-- -->
+
+    #> 
+    #> [[118]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-118.png)<!-- -->
+
+    #> 
+    #> [[119]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-119.png)<!-- -->
+
+    #> 
+    #> [[120]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-120.png)<!-- -->
+
+    #> 
+    #> [[121]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-121.png)<!-- -->
+
+    #> 
+    #> [[122]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-122.png)<!-- -->
+
+    #> 
+    #> [[123]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-123.png)<!-- -->
+
+    #> 
+    #> [[124]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-124.png)<!-- -->
+
+    #> 
+    #> [[125]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-125.png)<!-- -->
+
+    #> 
+    #> [[126]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-126.png)<!-- -->
+
+    #> 
+    #> [[127]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-127.png)<!-- -->
+
+    #> 
+    #> [[128]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-128.png)<!-- -->
+
+    #> 
+    #> [[129]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-129.png)<!-- -->
+
+    #> 
+    #> [[130]]
+
+![](README_files/figure-gfm/unnamed-chunk-57-130.png)<!-- -->
