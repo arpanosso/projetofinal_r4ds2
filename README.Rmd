@@ -31,8 +31,6 @@ O objetivo desse material é apresentar os procedimentos básicos para aquisiç�
 
 # CO2 Virtual Science Data Environment
 
-O objetivo desse material é apresentar os procedimentos básicos para aquisição de dados do satélite OCO-2 e processamento inicial em R.
-
 ## Aquisição de dados
 
 **1)** Acesse o endereço <https://co2.jpl.nasa.gov/>
@@ -258,6 +256,7 @@ oco2 %>%
 ```
 
 Agora devemos retirar a tendência ao longo do tempo, para isso, dentro do período específico, faremos a retirada por meio de um ajuste linear:
+
 ```{r}
 oco2 %>% 
   dplyr::arrange(data) %>%
@@ -297,7 +296,7 @@ dplyr::glimpse(oco2)
 ```
 
 
-Plot da concentração de CO2 no ano de 2014, primeiro ano de utilização do satélite.
+Visualização da concentração de CO2 no ano de 2014, primeiro ano de utilização do satélite.
 
 ```{r}
 oco2 %>%
@@ -582,6 +581,9 @@ as.data.frame(ko.fco2) %>%
   scale_fill_gradient(low = "yellow", high = "blue") + 
   coord_equal()
 ```
+
+Mapa do padrão espacial com o contorno.
+
 ```{r,error=FALSE,message=FALSE,warning=FALSE}
 as.data.frame(ko.fco2) %>% 
   mutate(flag_norte = def_pol(X,Y,pol_norte)) %>% 
@@ -591,7 +593,11 @@ as.data.frame(ko.fco2) %>%
   scale_fill_gradient(low = "yellow", high = "blue") + 
   coord_equal()+
   tema_mapa()+
-  labs(fill="xco2 (ppm)")
+  labs(fill="xco2 (ppm)") +
+  ggspatial::annotation_scale(
+  location="bl",
+  plot_unit="km",
+  height = ggplot2::unit(0.2,"cm"))
 ```
 
 ## Motivação Final
@@ -635,7 +641,7 @@ geoestati <- function(df,modelo="Sph"){
   # Adensamento de pontos
   x<-df$longitude
   y<-df$latitude
-  dis <- 0.5 # usamos a malha padrão
+  dis <- 0.1 # usamos a malha padrão
   grid <- expand.grid(X=seq(min(x),max(x),dis), Y=seq(min(y),max(y),dis))
   gridded(grid) = ~ X + Y
 
@@ -665,10 +671,12 @@ geoestati <- function(df,modelo="Sph"){
    coord_equal()+
    tema_mapa()+
    labs(fill="xco2 (ppm)",
-        title = paste(regiao,df$id_time[1]) )
+        title = paste(regiao,df$id_time[1]) ) +
+   ggspatial::annotation_scale(
+   location="bl",
+   plot_unit="km",
+   height = ggplot2::unit(0.2,"cm"))
 }
-
-
 ```
 
 
@@ -688,6 +696,8 @@ Vamos ver alguns mapas
 print(oco2_nest$geo_sph[1])
 print(oco2_nest$geo_sph[20])
 print(oco2_nest$geo_sph[30])
+print(oco2_nest$geo_sph[60])
+print(oco2_nest$geo_sph[80])
 print(oco2_nest$geo_sph[120])
 ```
 

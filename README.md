@@ -43,9 +43,6 @@ Aeronautics and Space Administration - NASA).
 
 # CO2 Virtual Science Data Environment
 
-O objetivo desse material é apresentar os procedimentos básicos para
-aquisição de dados do satélite OCO-2 e processamento inicial em R.
-
 ## Aquisição de dados
 
 **1)** Acesse o endereço <https://co2.jpl.nasa.gov/>
@@ -211,17 +208,17 @@ serão necessárias.
 dplyr::glimpse(oco2)
 #> Rows: 364,529
 #> Columns: 11
-#> $ longitude                              <dbl> -74.58225, -74.58225, -74.58225~
-#> $ longitude_bnds                         <chr> "-74.70703125:-74.4574652778", ~
-#> $ latitude                               <dbl> -30.22572489, -29.97654828, -29~
-#> $ latitude_bnds                          <chr> "-30.3503131952:-30.1011365845"~
-#> $ `time (YYYYMMDDHHMMSS)`                <dbl> 2.014091e+13, 2.014091e+13, 2.0~
-#> $ `time_bnds (YYYYMMDDHHMMSS)`           <chr> "20140909000000:20140910000000"~
-#> $ `altitude (km)`                        <dbl> 3307.8, 3307.8, 3307.8, 3307.8,~
-#> $ `alt_bnds (km)`                        <chr> "0.0:6615.59960938", "0.0:6615.~
-#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.012406800, 0.010696600, -0.00~
-#> $ fluorescence_offset_relative_757nm_idp <dbl> -3.58630e+00, 8.81219e-02, -3.6~
-#> $ `xco2 (Moles Mole^{-1})`               <dbl> 0.000394333, 0.000395080, 0.000~
+#> $ longitude                              <dbl> -74.58225, -74.58225, -74.58...
+#> $ longitude_bnds                         <chr> "-74.70703125:-74.4574652778...
+#> $ latitude                               <dbl> -30.22572489, -29.97654828, ...
+#> $ latitude_bnds                          <chr> "-30.3503131952:-30.10113658...
+#> $ `time (YYYYMMDDHHMMSS)`                <dbl> 2.014091e+13, 2.014091e+13, ...
+#> $ `time_bnds (YYYYMMDDHHMMSS)`           <chr> "20140909000000:201409100000...
+#> $ `altitude (km)`                        <dbl> 3307.8, 3307.8, 3307.8, 3307...
+#> $ `alt_bnds (km)`                        <chr> "0.0:6615.59960938", "0.0:66...
+#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.012406800, 0.010696600, -0...
+#> $ fluorescence_offset_relative_757nm_idp <dbl> -3.58630e+00, 8.81219e-02, -...
+#> $ `xco2 (Moles Mole^{-1})`               <dbl> 0.000394333, 0.000395080, 0....
 ```
 
 Inicialmente devemos transformar os dados de concentração de CO2,
@@ -314,31 +311,31 @@ oco2 <- oco2 %>%
 dplyr::glimpse(oco2)
 #> Rows: 364,529
 #> Columns: 21
-#> $ longitude                              <dbl> -72.58572, -72.33615, -72.33615~
-#> $ longitude_bnds                         <chr> "-72.7105034722:-72.4609375", "~
-#> $ latitude                               <dbl> 6.154060, 5.157354, 5.406530, 3~
-#> $ latitude_bnds                          <chr> "6.02947197682:6.27864858759", ~
-#> $ `time (YYYYMMDDHHMMSS)`                <dbl> 2.014091e+13, 2.014091e+13, 2.0~
-#> $ `time_bnds (YYYYMMDDHHMMSS)`           <chr> "20140906000000:20140907000000"~
-#> $ `altitude (km)`                        <dbl> 3307.8, 3307.8, 3307.8, 3307.8,~
-#> $ `alt_bnds (km)`                        <chr> "0.0:6615.59960938", "0.0:6615.~
-#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.01034260, 0.01597090, 0.00988~
-#> $ fluorescence_offset_relative_757nm_idp <dbl> 0.00158627, 0.00160726, 0.00848~
-#> $ `xco2 (Moles Mole^{-1})`               <dbl> 0.000391368, 0.000389822, 0.000~
-#> $ xco2                                   <dbl> 391.368, 389.822, 388.482, 390.~
-#> $ data                                   <dttm> 2014-09-06 12:00:00, 2014-09-0~
-#> $ ano                                    <dbl> 2014, 2014, 2014, 2014, 2014, 2~
-#> $ mes                                    <dbl> 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9~
-#> $ dia                                    <int> 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6~
-#> $ dia_semana                             <dbl> 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7~
-#> $ x                                      <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ~
-#> $ xco2_est                               <dbl> 392.8449, 392.8450, 392.8450, 3~
-#> $ delta                                  <dbl> 1.4769085, 3.0229529, 4.3629972~
-#> $ XCO2                                   <dbl> 383.2815, 381.7354, 380.3954, 3~
+#> $ longitude                              <dbl> -72.58572, -72.33615, -72.33...
+#> $ longitude_bnds                         <chr> "-72.7105034722:-72.4609375"...
+#> $ latitude                               <dbl> 6.154060, 5.157354, 5.406530...
+#> $ latitude_bnds                          <chr> "6.02947197682:6.27864858759...
+#> $ `time (YYYYMMDDHHMMSS)`                <dbl> 2.014091e+13, 2.014091e+13, ...
+#> $ `time_bnds (YYYYMMDDHHMMSS)`           <chr> "20140906000000:201409070000...
+#> $ `altitude (km)`                        <dbl> 3307.8, 3307.8, 3307.8, 3307...
+#> $ `alt_bnds (km)`                        <chr> "0.0:6615.59960938", "0.0:66...
+#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.01034260, 0.01597090, 0.00...
+#> $ fluorescence_offset_relative_757nm_idp <dbl> 0.00158627, 0.00160726, 0.00...
+#> $ `xco2 (Moles Mole^{-1})`               <dbl> 0.000391368, 0.000389822, 0....
+#> $ xco2                                   <dbl> 391.368, 389.822, 388.482, 3...
+#> $ data                                   <dttm> 2014-09-06 12:00:00, 2014-0...
+#> $ ano                                    <dbl> 2014, 2014, 2014, 2014, 2014...
+#> $ mes                                    <dbl> 9, 9, 9, 9, 9, 9, 9, 9, 9, 9...
+#> $ dia                                    <int> 6, 6, 6, 6, 6, 6, 6, 6, 6, 6...
+#> $ dia_semana                             <dbl> 7, 7, 7, 7, 7, 7, 7, 7, 7, 7...
+#> $ x                                      <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 1...
+#> $ xco2_est                               <dbl> 392.8449, 392.8450, 392.8450...
+#> $ delta                                  <dbl> 1.4769085, 3.0229529, 4.3629...
+#> $ XCO2                                   <dbl> 383.2815, 381.7354, 380.3954...
 ```
 
-Plot da concentração de CO2 no ano de 2014, primeiro ano de utilização
-do satélite.
+Visualização da concentração de CO2 no ano de 2014, primeiro ano de
+utilização do satélite.
 
 ``` r
 oco2 %>%
@@ -436,33 +433,33 @@ oco2 <- oco2 %>%
 dplyr::glimpse(oco2)
 #> Rows: 364,529
 #> Columns: 27
-#> $ longitude                              <dbl> -72.58572, -72.33615, -72.33615~
-#> $ longitude_bnds                         <chr> "-72.7105034722:-72.4609375", "~
-#> $ latitude                               <dbl> 6.154060, 5.157354, 5.406530, 3~
-#> $ latitude_bnds                          <chr> "6.02947197682:6.27864858759", ~
-#> $ `time (YYYYMMDDHHMMSS)`                <dbl> 2.014091e+13, 2.014091e+13, 2.0~
-#> $ `time_bnds (YYYYMMDDHHMMSS)`           <chr> "20140906000000:20140907000000"~
-#> $ `altitude (km)`                        <dbl> 3307.8, 3307.8, 3307.8, 3307.8,~
-#> $ `alt_bnds (km)`                        <chr> "0.0:6615.59960938", "0.0:6615.~
-#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.01034260, 0.01597090, 0.00988~
-#> $ fluorescence_offset_relative_757nm_idp <dbl> 0.00158627, 0.00160726, 0.00848~
-#> $ `xco2 (Moles Mole^{-1})`               <dbl> 0.000391368, 0.000389822, 0.000~
-#> $ xco2                                   <dbl> 391.368, 389.822, 388.482, 390.~
-#> $ data                                   <dttm> 2014-09-06 12:00:00, 2014-09-0~
-#> $ ano                                    <dbl> 2014, 2014, 2014, 2014, 2014, 2~
-#> $ mes                                    <dbl> 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9~
-#> $ dia                                    <int> 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6~
-#> $ dia_semana                             <dbl> 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7~
-#> $ x                                      <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ~
-#> $ xco2_est                               <dbl> 392.8449, 392.8450, 392.8450, 3~
-#> $ delta                                  <dbl> 1.4769085, 3.0229529, 4.3629972~
-#> $ XCO2                                   <dbl> 383.2815, 381.7354, 380.3954, 3~
-#> $ flag_br                                <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
-#> $ flag_norte                             <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
-#> $ flag_nordeste                          <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
-#> $ flag_sul                               <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
-#> $ flag_sudeste                           <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
-#> $ flag_centroeste                        <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
+#> $ longitude                              <dbl> -72.58572, -72.33615, -72.33...
+#> $ longitude_bnds                         <chr> "-72.7105034722:-72.4609375"...
+#> $ latitude                               <dbl> 6.154060, 5.157354, 5.406530...
+#> $ latitude_bnds                          <chr> "6.02947197682:6.27864858759...
+#> $ `time (YYYYMMDDHHMMSS)`                <dbl> 2.014091e+13, 2.014091e+13, ...
+#> $ `time_bnds (YYYYMMDDHHMMSS)`           <chr> "20140906000000:201409070000...
+#> $ `altitude (km)`                        <dbl> 3307.8, 3307.8, 3307.8, 3307...
+#> $ `alt_bnds (km)`                        <chr> "0.0:6615.59960938", "0.0:66...
+#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.01034260, 0.01597090, 0.00...
+#> $ fluorescence_offset_relative_757nm_idp <dbl> 0.00158627, 0.00160726, 0.00...
+#> $ `xco2 (Moles Mole^{-1})`               <dbl> 0.000391368, 0.000389822, 0....
+#> $ xco2                                   <dbl> 391.368, 389.822, 388.482, 3...
+#> $ data                                   <dttm> 2014-09-06 12:00:00, 2014-0...
+#> $ ano                                    <dbl> 2014, 2014, 2014, 2014, 2014...
+#> $ mes                                    <dbl> 9, 9, 9, 9, 9, 9, 9, 9, 9, 9...
+#> $ dia                                    <int> 6, 6, 6, 6, 6, 6, 6, 6, 6, 6...
+#> $ dia_semana                             <dbl> 7, 7, 7, 7, 7, 7, 7, 7, 7, 7...
+#> $ x                                      <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 1...
+#> $ xco2_est                               <dbl> 392.8449, 392.8450, 392.8450...
+#> $ delta                                  <dbl> 1.4769085, 3.0229529, 4.3629...
+#> $ XCO2                                   <dbl> 383.2815, 381.7354, 380.3954...
+#> $ flag_br                                <lgl> FALSE, FALSE, FALSE, FALSE, ...
+#> $ flag_norte                             <lgl> FALSE, FALSE, FALSE, FALSE, ...
+#> $ flag_nordeste                          <lgl> FALSE, FALSE, FALSE, FALSE, ...
+#> $ flag_sul                               <lgl> FALSE, FALSE, FALSE, FALSE, ...
+#> $ flag_sudeste                           <lgl> FALSE, FALSE, FALSE, FALSE, ...
+#> $ flag_centroeste                        <lgl> FALSE, FALSE, FALSE, FALSE, ...
 ```
 
 Plot dos pontos do polígono br\_pol.
@@ -615,17 +612,10 @@ oco2_br %>%
 
 ``` r
 library(tidyverse)
-#> Warning: package 'ggplot2' was built under R version 4.0.4
-#> Warning: package 'tibble' was built under R version 4.0.4
-#> Warning: package 'tidyr' was built under R version 4.0.4
-#> Warning: package 'readr' was built under R version 4.0.4
-#> Warning: package 'dplyr' was built under R version 4.0.4
-#> Warning: package 'forcats' was built under R version 4.0.5
 library(sp)
-#> Warning: package 'sp' was built under R version 4.0.4
 library(gstat)
-#> Warning: package 'gstat' was built under R version 4.0.4
 library(geobr)
+#> Warning: package 'geobr' was built under R version 4.0.5
 ```
 
 ``` r
@@ -710,6 +700,8 @@ as.data.frame(ko.fco2) %>%
 
 ![](README_files/figure-gfm/unnamed-chunk-53-1.png)<!-- -->
 
+Mapa do padrão espacial com o contorno.
+
 ``` r
 as.data.frame(ko.fco2) %>% 
   mutate(flag_norte = def_pol(X,Y,pol_norte)) %>% 
@@ -719,7 +711,11 @@ as.data.frame(ko.fco2) %>%
   scale_fill_gradient(low = "yellow", high = "blue") + 
   coord_equal()+
   tema_mapa()+
-  labs(fill="xco2 (ppm)")
+  labs(fill="xco2 (ppm)") +
+  ggspatial::annotation_scale(
+  location="bl",
+  plot_unit="km",
+  height = ggplot2::unit(0.2,"cm"))
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-54-1.png)<!-- -->
@@ -750,14 +746,14 @@ oco2_nest<-oco2_br %>%
 head(oco2_nest)
 #> # A tibble: 6 x 3
 #> # Groups:   região, trimestre_ano [6]
-#>   região trimestre_ano data                    
-#>   <chr>  <date>        <list>                  
-#> 1 norte  2017-03-01    <tibble[,7] [1,476 x 7]>
-#> 2 norte  2020-03-01    <tibble[,7] [1,637 x 7]>
-#> 3 norte  2015-04-01    <tibble[,7] [829 x 7]>  
-#> 4 norte  2019-04-01    <tibble[,7] [798 x 7]>  
-#> 5 norte  2014-04-01    <tibble[,7] [820 x 7]>  
-#> 6 norte  2016-04-01    <tibble[,7] [899 x 7]>
+#>   região trimestre_ano data                
+#>   <chr>  <date>        <list>              
+#> 1 norte  2017-03-01    <tibble [1,476 x 7]>
+#> 2 norte  2020-03-01    <tibble [1,637 x 7]>
+#> 3 norte  2015-04-01    <tibble [829 x 7]>  
+#> 4 norte  2019-04-01    <tibble [798 x 7]>  
+#> 5 norte  2014-04-01    <tibble [820 x 7]>  
+#> 6 norte  2016-04-01    <tibble [899 x 7]>
 ```
 
 Criaremos uma função para modelagem e krigagem como apresentado
@@ -777,7 +773,7 @@ geoestati <- function(df,modelo="Sph"){
   # Adensamento de pontos
   x<-df$longitude
   y<-df$latitude
-  dis <- 0.5 # usamos a malha padrão
+  dis <- 0.1 # usamos a malha padrão
   grid <- expand.grid(X=seq(min(x),max(x),dis), Y=seq(min(y),max(y),dis))
   gridded(grid) = ~ X + Y
 
@@ -807,7 +803,11 @@ geoestati <- function(df,modelo="Sph"){
    coord_equal()+
    tema_mapa()+
    labs(fill="xco2 (ppm)",
-        title = paste(regiao,df$id_time[1]) )
+        title = paste(regiao,df$id_time[1]) ) +
+   ggspatial::annotation_scale(
+   location="bl",
+   plot_unit="km",
+   height = ggplot2::unit(0.2,"cm"))
 }
 ```
 
@@ -952,10 +952,10 @@ glimpse(oco2_nest)
 #> Rows: 130
 #> Columns: 4
 #> Groups: região, trimestre_ano [130]
-#> $ região        <chr> "norte", "norte", "norte", "norte", "norte", "norte", "n~
-#> $ trimestre_ano <date> 2017-03-01, 2020-03-01, 2015-04-01, 2019-04-01, 2014-04~
-#> $ data          <list> [<tbl_df[1476 x 7]>], [<tbl_df[1637 x 7]>], [<tbl_df[82~
-#> $ geo_sph       <list> [-61.83355035, -60.83355035, -62.33355035, -61.83355035~
+#> $ região        <chr> "norte", "norte", "norte", "norte", "norte", "norte",...
+#> $ trimestre_ano <date> 2017-03-01, 2020-03-01, 2015-04-01, 2019-04-01, 2014...
+#> $ data          <list> [<tbl_df[1476 x 7]>, <tbl_df[1637 x 7]>, <tbl_df[829...
+#> $ geo_sph       <list> [<-61.83355035, -61.53355035, -61.43355035, -60.9335...
 ```
 
 Vamos ver alguns mapas
@@ -985,9 +985,25 @@ print(oco2_nest$geo_sph[30])
 ![](README_files/figure-gfm/unnamed-chunk-58-3.png)<!-- -->
 
 ``` r
-print(oco2_nest$geo_sph[120])
+print(oco2_nest$geo_sph[60])
 #> [[1]]
 #> Using plotunit = 'm'
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-58-4.png)<!-- -->
+
+``` r
+print(oco2_nest$geo_sph[80])
+#> [[1]]
+#> Using plotunit = 'm'
+```
+
+![](README_files/figure-gfm/unnamed-chunk-58-5.png)<!-- -->
+
+``` r
+print(oco2_nest$geo_sph[120])
+#> [[1]]
+#> Using plotunit = 'm'
+```
+
+![](README_files/figure-gfm/unnamed-chunk-58-6.png)<!-- -->
