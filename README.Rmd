@@ -163,17 +163,18 @@ source("r/funcoes.R")
 links <- list.files(path = "data-raw/",
              pattern = ".txt",
              full.names = TRUE) %>%
-    read.table() %>%
-    dplyr::pull(V1)
+    readr::read_table(col_names = FALSE,
+                      col_types = "c") %>%
+    dplyr::pull(X1)
 
 # Definindo os caminhos e nomes dos arquivos
 n_split <- lengths(stringr::str_split(links[1],"/"))
-files.csv <- stringr::str_split(links,"/",simplify = TRUE)[,n_split]
-files.csv <- paste0("data-raw/csv/",files.csv)
+files_csv <- stringr::str_split(links,"/",simplify = TRUE)[,n_split]
+files_csv <- paste0("data-raw/csv/",files_csv)
 
 # Download dos arquivos .csv
 # purrr::map2(links,
-#             files.csv,
+#             files_csv,
 #             .f=download.file,mode="wb")
 ```
 
@@ -197,12 +198,13 @@ O código abaixo realiza a faxina inicial dos dados, após sua execussão o volu
 ```{r,eval=FALSE}
 faxina_co2 <- function(arquivo, col, valor_perdido){
    da <- readr::read_csv(arquivo) %>%
+     janitor::clean_names() %>% 
      dplyr::filter({{col}} != valor_perdido)
    readr::write_csv(da,arquivo)
 }
 
-purrr::map(files.csv, faxina_co2,
-           col=`xco2 (Moles Mole^{-1})`,
+purrr::map(files_csv, faxina_co2,
+           col=xco2_moles_mole_1,
            valor_perdido= -999999)
 ```
 
@@ -214,7 +216,7 @@ knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofina
 Agora vamos compilar todos os arquivos em um único que posteriormente será salvo no diretório *data/oco2.rds*.
 
 ```{r,eval=FALSE}
-oco2 <- purrr::map_dfr(files.csv, ~readr::read_csv(.x))
+oco2 <- purrr::map_dfr(files_csv, ~readr::read_csv(.x))
 readr::write_rds(oco2,"data/oco2.rds")
 ```
 
@@ -230,13 +232,13 @@ Abaixo observamos o vislumbre da base de dados, e algumas transformações serã
 dplyr::glimpse(oco2)
 ```
 
-Inicialmente devemos transformar os dados de concentração de CO2, variável `xco2 (Moles Mole^{-1})` para ppm em seguida devemos criar as variáveis de data a partir da variável  `time (YYYYMMDDHHMMSS)`.
+Inicialmente devemos transformar os dados de concentração de CO2, variável `xco2_moles_mole_1` para ppm em seguida devemos criar as variáveis de data a partir da variável  `time_yyyymmddhhmmss `.
 
 ```{r}
 oco2<-oco2 %>%
          dplyr::mutate(
-           xco2 = `xco2 (Moles Mole^{-1})`*1e06,
-           data = lubridate::ymd_hms(`time (YYYYMMDDHHMMSS)`),
+           xco2 = xco2_moles_mole_1*1e06,
+           data = lubridate::ymd_hms(time_yyyymmddhhmmss),
            ano = lubridate::year(data),
            mes = lubridate::month(data),
            dia = lubridate::day(data),
@@ -244,8 +246,7 @@ oco2<-oco2 %>%
 ```
 
 
-
-Existe uma tendência de aumento monotônica mundial da concentração de CO2 na atmosfera, assim, ela deve ser retirar para podermos observar as tendências gerionais.
+Existe uma tendência de aumento monotônica mundial da concentração de CO2 na atmosfera, assim, ela deve ser retirada para podermos observar as tendências regionais.
 
 
 ```{r}
@@ -384,7 +385,7 @@ oco2 <- oco2 %>%
 dplyr::glimpse(oco2)
 ```
 
-Plot dos pontos do polígono br_pol.
+Plot dos pontos do polígono pol_br.
 
 ```{r,message=FALSE,error=FALSE,warning=FALSE}
 br %>%
@@ -504,50 +505,42 @@ oco2_br %>%
 
 
 ## Análise de variabilidade espaço-temporal para os pontos da região norte.
-```{r,message=FALSE}
-library(tidyverse)
-library(sp)
-library(gstat)
-library(geobr)
-```
-
 
 ```{r,message=FALSE}
 xco2_norte <- oco2_br %>% 
-  filter(flag_norte, ano==2014) %>% 
-  mutate(coordxy = paste0(latitude,longitude)) %>% 
-  group_by(longitude,latitude) %>% 
-  summarise(xco2_media = mean(XCO2, na.rm=TRUE) )
+  dplyr::filter(flag_norte, ano==2014) %>% 
+  dplyr::mutate(coordxy = paste0(latitude,longitude)) %>% 
+  dplyr::group_by(longitude,latitude) %>% 
+  dplyr::summarise(xco2_media = mean(XCO2, na.rm=TRUE) )
 
 xco2_norte %>% 
-  ggplot(aes(x=longitude, y=latitude) ) + 
-  geom_point()
+  ggplot2::ggplot(ggplot2::aes(x=longitude, y=latitude) ) + 
+  ggplot2::geom_point()
 ```
 
 De posse desse mapa, vamos fazer a análise de dependência espacial. Definindo os valores de X e Y e a fórmula para análise variográfica.
 
 ```{r}
-coordinates(xco2_norte)=~ longitude+latitude  
+sp::coordinates(xco2_norte)=~ longitude+latitude  
 form<-xco2_media~1 # fórmula para ser utilizado na função variogram
 ```
 
 Verificando o Variograma experimental
 
 ```{r}
-vari_co2_norte<-variogram(form, data=xco2_norte)
+vari_co2_norte<-gstat::variogram(form, data=xco2_norte)
 vari_co2_norte %>% 
-  ggplot(aes(x=dist, y=gamma)) +
-  geom_point()
+  ggplot2::ggplot(ggplot2::aes(x=dist, y=gamma)) +
+  ggplot2::geom_point()
 ```
 
 ## Modelagem espaço-temporal
 
 Vamos ajustar um modela esférico ao variograma experimental anterior.
 
-
 ```{r}
-m.xco2 <- fit.variogram(vari_co2_norte,vgm(1,"Sph",10,0))
-plot(vari_co2_norte,model=m.xco2, col=1,pl=F,pch=16)
+m_xco2 <- gstat::fit.variogram(vari_co2_norte,gstat::vgm(1,"Sph",10,0))
+plot(vari_co2_norte,model=m_xco2, col=1,pl=F,pch=16)
 ```
 
 Vamos criar o grid refinado para a interpolação
@@ -557,7 +550,7 @@ x<-xco2_norte$longitude
 y<-xco2_norte$latitude
 dis <- 0.1 #Distância entre pontos
 grid <- expand.grid(X=seq(min(x),max(x),dis), Y=seq(min(y),max(y),dis))
-gridded(grid) = ~ X + Y
+sp::gridded(grid) = ~ X + Y
 ```
 
 Krigragem ordinária (KO)
@@ -565,7 +558,7 @@ Krigragem ordinária (KO)
 Utilizando o algorítmo de KO, vamos estimar xco2 nos locais não amostrados.
 
 ```{r}
-ko.fco2<-krige(formula=form, xco2_norte, grid, model=m.xco2, 
+ko_fco2<-gstat::krige(formula=form, xco2_norte, grid, model=m_xco2, 
 	block=c(0,0),
 	nsim=0,
 	na.action=na.pass,
@@ -575,29 +568,29 @@ ko.fco2<-krige(formula=form, xco2_norte, grid, model=m.xco2,
 Mapa de padrões espaciais para o Ano de 2014 da região Norte.
 
 ```{r}
-as.data.frame(ko.fco2) %>% 
-  ggplot(aes(x=X, y=Y)) + 
-  geom_tile(aes(fill = var1.pred)) +
-  scale_fill_gradient(low = "yellow", high = "blue") + 
-  coord_equal()
+tibble::as.tibble(ko_fco2) %>% 
+  ggplot2::ggplot(aes(x=X, y=Y)) + 
+  ggplot2::geom_tile(aes(fill = var1.pred)) +
+  ggplot2::scale_fill_gradient(low = "yellow", high = "blue") + 
+  ggplot2::coord_equal()
 ```
 
 Mapa do padrão espacial com o contorno.
 
 ```{r,error=FALSE,message=FALSE,warning=FALSE}
-as.data.frame(ko.fco2) %>% 
-  mutate(flag_norte = def_pol(X,Y,pol_norte)) %>% 
-  filter(flag_norte) %>% 
-  ggplot(aes(x=X, y=Y),color="black") + 
-  geom_tile(aes(fill = var1.pred)) +
-  scale_fill_gradient(low = "yellow", high = "blue") + 
-  coord_equal()+
+tibble::as.tibble(ko_fco2) %>% 
+  dplyr::mutate(flag_norte = def_pol(X,Y,pol_norte)) %>% 
+  dplyr::filter(flag_norte) %>% 
+  ggplot2::ggplot(ggplot2::aes(x=X, y=Y),color="black") + 
+  ggplot2::geom_tile(aes(fill = var1.pred)) +
+  ggplot2::scale_fill_gradient(low = "yellow", high = "blue") + 
+  ggplot2::coord_equal()+
   tema_mapa()+
-  labs(fill="xco2 (ppm)") +
+  ggplot2::labs(fill="xco2 (ppm)") +
   ggspatial::annotation_scale(
-  location="bl",
-  plot_unit="km",
-  height = ggplot2::unit(0.2,"cm"))
+    location="bl",
+    plot_unit="km",
+    height = ggplot2::unit(0.2,"cm"))
 ```
 
 ## Motivação Final
@@ -606,23 +599,23 @@ as.data.frame(ko.fco2) %>%
 
 ```{r, warning=FALSE,message=FALSE}
 oco2_nest<-oco2_br %>% 
-  mutate(trimestre = lubridate::quarter(data)) %>% 
-  pivot_longer(
+  dplyr::mutate(trimestre = lubridate::quarter(data)) %>% 
+  tidyr::pivot_longer(
     starts_with("flag"),
     names_to = "região",
     values_to = "flag"
   ) %>% 
-  filter(flag) %>% 
-  mutate(região = str_remove(região,"flag_")) %>% 
-  group_by(longitude, latitude, região, ano, trimestre) %>% 
-  summarise(media_co2 = mean(XCO2, na.rm=TRUE)) %>% 
-    mutate(
+  dplyr::filter(flag) %>% 
+  dplyr::mutate(região = str_remove(região,"flag_")) %>% 
+  dplyr::group_by(longitude, latitude, região, ano, trimestre) %>% 
+  dplyr::summarise(media_co2 = mean(XCO2, na.rm=TRUE)) %>% 
+    dplyr::mutate(
     trimestre_ano = lubridate::make_date(ano, trimestre, 1),
     regi = região,
     id_time = trimestre_ano
   ) %>% 
-  group_by(região,trimestre_ano) %>% 
-  nest() 
+  dplyr::group_by(região,trimestre_ano) %>% 
+  tidyr::nest() 
 head(oco2_nest)
 ```
 Criaremos uma função para modelagem e krigagem como apresentado anterioremente.
@@ -635,21 +628,21 @@ geoestati <- function(df,modelo="Sph"){
   vari<-gstat::variogram(form, data=df)
   alpha <- max(vari$gamma)
   beta <- max(vari$dist)
-  m.xco2 <- gstat::fit.variogram(vari,gstat::vgm(0,modelo,beta,0))
-  if(m.xco2$range[2] < 0 ) m.xco2 <- gstat::fit.variogram(vari,gstat::vgm(alpha,modelo,beta,0))
+  m_xco2 <- gstat::fit.variogram(vari,gstat::vgm(0,modelo,beta,0))
+  if(m.xco2$range[2] < 0 ) m_xco2 <- gstat::fit.variogram(vari,gstat::vgm(alpha,modelo,beta,0))
   
   # Adensamento de pontos
   x<-df$longitude
   y<-df$latitude
   dis <- 0.1 # usamos a malha padrão
   grid <- expand.grid(X=seq(min(x),max(x),dis), Y=seq(min(y),max(y),dis))
-  gridded(grid) = ~ X + Y
+  sp::gridded(grid) = ~ X + Y
 
   #Krigagem ordinária
-  ko.xco2<-gstat::krige(formula=form, df, grid, model=m.xco2,
-	block=c(0,0),
-	nsim=0,
-	na.action=na.pass
+  ko_xco2<-gstat::krige(formula=form, df, grid, model=m_xco2,
+  	block=c(0,0),
+  	nsim=0,
+  	na.action=na.pass
   )
 
   # Definindo os polígonos - Dependência externa da função
@@ -662,15 +655,15 @@ geoestati <- function(df,modelo="Sph"){
 
 
   # Saída do mapa krigado
-   as.data.frame(ko.xco2) %>%
-   mutate(flag = def_pol(X,Y,pol_)) %>%
-   filter(flag) %>%
-   ggplot(aes(x=X, y=Y)) +
-   geom_tile(aes(fill = var1.pred)) +
-   scale_fill_gradient(low = "yellow", high = "blue") +
-   coord_equal()+
+   tibble::as.tibble(ko_xco2) %>%
+   dplyr::mutate(flag = def_pol(X,Y,pol_)) %>%
+   dplyr::filter(flag) %>%
+   ggplot2::ggplot(ggplot2::aes(x=X, y=Y)) +
+   ggplot2::geom_tile(ggplot2::aes(fill = var1.pred)) +
+   ggplot2::scale_fill_gradient(low = "yellow", high = "blue") +
+   ggplot2::coord_equal()+
    tema_mapa()+
-   labs(fill="xco2 (ppm)",
+   ggplot2::labs(fill="xco2 (ppm)",
         title = paste(regiao,df$id_time[1]) ) +
    ggspatial::annotation_scale(
    location="bl",
@@ -684,13 +677,13 @@ Laço para criar os mapas por trimestre.
 
 ```{r,error=FALSE,warning=FALSE,message=FALSE}
 oco2_nest <- oco2_nest %>% 
-  mutate( 
-    geo_sph = map(data,geoestati,modelo="Sph")
+  dplyr::mutate( 
+    geo_sph = purrr::map(data,geoestati,modelo="Sph")
     )
 glimpse(oco2_nest)
 ```
 
-Vamos ver alguns mapas
+Vamos verificar alguns mapas.
 
 ```{r}
 print(oco2_nest$geo_sph[1])
