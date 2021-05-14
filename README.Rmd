@@ -118,7 +118,7 @@ knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofina
 knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_12.png")
 ```
 
-**13)** Acesse o seu e-mail, será enviado uma mensagem com o endereço dos arquivos onde você poderá acompanhar o progresso do processamento de seus dados. Ao final dessa etapa um novo e-mail é enviado informando que os dados estão disponíveis.
+**13)** Acesse o seu e-mail, será enviado uma mensagem com o endereço dos arquivos onde você poderá acompanhar o progresso do processamento de seus dados. Ao final dessa etapa uma nova mensagem será enviada informando que os dados estão disponíveis.
 
 ```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "600px"}
 knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/jpl_13.png")
@@ -569,8 +569,8 @@ Mapa de padrões espaciais para o Ano de 2014 da região Norte.
 
 ```{r}
 tibble::as.tibble(ko_fco2) %>% 
-  ggplot2::ggplot(aes(x=X, y=Y)) + 
-  ggplot2::geom_tile(aes(fill = var1.pred)) +
+  ggplot2::ggplot(ggplot2::aes(x=X, y=Y)) + 
+  ggplot2::geom_tile(ggplot2::aes(fill = var1.pred)) +
   ggplot2::scale_fill_gradient(low = "yellow", high = "blue") + 
   ggplot2::coord_equal()
 ```
@@ -582,7 +582,7 @@ tibble::as.tibble(ko_fco2) %>%
   dplyr::mutate(flag_norte = def_pol(X,Y,pol_norte)) %>% 
   dplyr::filter(flag_norte) %>% 
   ggplot2::ggplot(ggplot2::aes(x=X, y=Y),color="black") + 
-  ggplot2::geom_tile(aes(fill = var1.pred)) +
+  ggplot2::geom_tile(ggplot2::aes(fill = var1.pred)) +
   ggplot2::scale_fill_gradient(low = "yellow", high = "blue") + 
   ggplot2::coord_equal()+
   tema_mapa()+
@@ -606,7 +606,7 @@ oco2_nest<-oco2_br %>%
     values_to = "flag"
   ) %>% 
   dplyr::filter(flag) %>% 
-  dplyr::mutate(região = str_remove(região,"flag_")) %>% 
+  dplyr::mutate(região = stringr::str_remove(região,"flag_")) %>% 
   dplyr::group_by(longitude, latitude, região, ano, trimestre) %>% 
   dplyr::summarise(media_co2 = mean(XCO2, na.rm=TRUE)) %>% 
     dplyr::mutate(
@@ -629,7 +629,7 @@ geoestati <- function(df,modelo="Sph"){
   alpha <- max(vari$gamma)
   beta <- max(vari$dist)
   m_xco2 <- gstat::fit.variogram(vari,gstat::vgm(0,modelo,beta,0))
-  if(m.xco2$range[2] < 0 ) m_xco2 <- gstat::fit.variogram(vari,gstat::vgm(alpha,modelo,beta,0))
+  if(m_xco2$range[2] < 0 ) m_xco2 <- gstat::fit.variogram(vari,gstat::vgm(alpha,modelo,beta,0))
   
   # Adensamento de pontos
   x<-df$longitude
@@ -680,7 +680,7 @@ oco2_nest <- oco2_nest %>%
   dplyr::mutate( 
     geo_sph = purrr::map(data,geoestati,modelo="Sph")
     )
-glimpse(oco2_nest)
+dplyr::glimpse(oco2_nest)
 ```
 
 Vamos verificar alguns mapas.
