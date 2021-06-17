@@ -1,0 +1,14 @@
+name: projetofinal_r4ds2
+title: projetofinal_r4ds2
+username:
+account: arpanosso
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4284920
+bundleId: 4727603
+url: https://arpanosso.shinyapps.io/projetofinal_r4ds2/
+when: 1623944035.43017
+lastSyncTime: 1623944035.43017
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: conway.gif|data/an?lise.R|data/oco2.rds|data/oco2_br.rds|data/Santos_ok.txt|data/scrit_Newton_Santos.R|R/funcoes.R|R/gameoflife.R|R/graficos.R|README.md|README.Rmd|data-raw|inst|README_files
