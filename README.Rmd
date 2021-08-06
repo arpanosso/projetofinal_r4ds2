@@ -155,16 +155,15 @@ O código abaixo será utilizado para fazer o download dos arquivos CSV com os d
 
 ```{r}
 # Definindo o Pipe e funções
-`%>%` <- magrittr::`%>%`
 source("r/graficos.R")
 source("r/funcoes.R")
 
 # Links de download gerados pela NASA
 links <- list.files(path = "data-raw/",
              pattern = ".txt",
-             full.names = TRUE) %>%
+             full.names = TRUE) |>
     readr::read_table(col_names = FALSE,
-                      col_types = "c") %>%
+                      col_types = "c") |>
     dplyr::pull(X1)
 
 # Definindo os caminhos e nomes dos arquivos
@@ -172,13 +171,38 @@ n_split <- lengths(stringr::str_split(links[1],"/"))
 files_csv <- stringr::str_split(links,"/",simplify = TRUE)[,n_split]
 files_csv <- paste0("data-raw/csv/",files_csv)
 
-# Download dos arquivos .csv
-# purrr::map2(links,
-#             files_csv,
-#             .f=download.file,mode="wb")
+# Definindo o plano de multisession
+future::plan("multisession")
+
+# Criando a função para fazer o download dos arquivos
+download_arquivos <- function(url, dir){
+  download.file(url, dir, mode = "wb")
+  return(dir)
+}
+tictoc::tic()
+purrr::map2(links[1:1], files_csv[1:1], 
+            purrr::possibly(download_arquivos, ""))
+tictoc::toc()
 ```
 
-Imagem dos arquivos baixados. Observe o tamnho dos arquivo individuais, ao redor de *162 MB*.
+
+```{r, eval=FALSE}
+# Criando a função maybe_
+maybe_download_nasa_prog <- function(url, dir, prog){
+  prog()
+  f <- purrr::possibly(download_arquivos, "")
+  f(url, dir)
+}
+
+# Rodando com a barra de progresso
+progressr::with_progress({
+  prog <- progressr::progressor(along = links)
+  furrr::future_map2(links, files_csv, 
+                     maybe_download_nasa_prog, prog=prog)
+})
+```
+
+Imagem dos arquivos baixados. Observe o tamanho dos arquivo individuais, ao redor de *162 MB*.
 
 ```{r echo=FALSE, fig.cap="",fig.align='center',out.width = "700px"}
 knitr::include_graphics("https://raw.githubusercontent.com/arpanosso/projetofinal_r4ds2/master/inst/dow_csv.png")
@@ -197,8 +221,8 @@ O código abaixo realiza a faxina inicial dos dados, após sua execussão o volu
 
 ```{r,eval=FALSE}
 faxina_co2 <- function(arquivo, col, valor_perdido){
-   da <- readr::read_csv(arquivo) %>%
-     janitor::clean_names() %>% 
+   da <- readr::read_csv(arquivo) |>
+     janitor::clean_names() |> 
      dplyr::filter({{col}} != valor_perdido)
    readr::write_csv(da,arquivo)
 }
@@ -235,7 +259,7 @@ dplyr::glimpse(oco2)
 Inicialmente devemos transformar os dados de concentração de CO2, variável `xco2_moles_mole_1` para ppm em seguida devemos criar as variáveis de data a partir da variável  `time_yyyymmddhhmmss `.
 
 ```{r}
-oco2<-oco2 %>%
+oco2<-oco2 |>
          dplyr::mutate(
            xco2 = xco2_moles_mole_1*1e06,
            data = lubridate::ymd_hms(time_yyyymmddhhmmss),
@@ -250,7 +274,7 @@ Existe uma tendência de aumento monotônica mundial da concentração de CO2 na
 
 
 ```{r}
-oco2 %>% 
+oco2 |> 
   ggplot2::ggplot(ggplot2::aes(x=data,y=xco2)) +
   ggplot2::geom_point(color="blue") +
   ggplot2::geom_line(color="red")
@@ -259,9 +283,9 @@ oco2 %>%
 Agora devemos retirar a tendência ao longo do tempo, para isso, dentro do período específico, faremos a retirada por meio de um ajuste linear:
 
 ```{r}
-oco2 %>% 
-  dplyr::arrange(data) %>%
-  dplyr::mutate(x= 1:nrow(oco2)) %>% 
+oco2 |> 
+  dplyr::arrange(data) |>
+  dplyr::mutate(x= 1:nrow(oco2)) |> 
   ggplot2::ggplot(ggplot2::aes(x=x,y=xco2)) +
   ggplot2::geom_point(shape=21,color="black",fill="gray") +
   ggplot2::geom_smooth(method = "lm") +
@@ -272,9 +296,9 @@ oco2 %>%
 Extrair os coeficientes a e b da análise de regressão linear (y=a+bX).
 
 ```{r}
-d_aux<-oco2 %>% 
-  dplyr::arrange(data) %>%
-  dplyr::mutate(x= 1:nrow(oco2)) %>%                  
+d_aux<-oco2 |> 
+  dplyr::arrange(data) |>
+  dplyr::mutate(x= 1:nrow(oco2)) |>                  
   dplyr::select(x,xco2)
 mod <- lm(d_aux$xco2~d_aux$x)
 summary.lm(mod)
@@ -285,8 +309,8 @@ b<-mod$coefficients[2]
 Criando a variável xco2_est a partir da retirada da tendência.
 
 ```{r}
-oco2 <- oco2 %>% 
-  dplyr::arrange(data) %>%
+oco2 <- oco2 |> 
+  dplyr::arrange(data) |>
   dplyr::mutate(
     x= 1:nrow(oco2),
     xco2_est = a + b * x,
@@ -300,8 +324,8 @@ dplyr::glimpse(oco2)
 Visualização da concentração de CO2 no ano de 2014, primeiro ano de utilização do satélite.
 
 ```{r}
-oco2 %>%
-  dplyr::filter(ano == 2014) %>%
+oco2 |>
+  dplyr::filter(ano == 2014) |>
   ggplot2::ggplot(ggplot2::aes(x=longitude, y=latitude, color=dia_semana)) +
   ggplot2::geom_point()
 ```
@@ -317,33 +341,33 @@ Agora podemos extrair os polígonos
 
 ```{r}
 ### Polígono Brasil
-pol_br <- br$geom %>% purrr::pluck(1) %>% as.matrix()
+pol_br <- br$geom |> purrr::pluck(1) |> as.matrix()
 
 ### Polígonos das Regiões
-pol_norte <- regiao$geom %>% purrr::pluck(1) %>% as.matrix()
-pol_nordeste <- regiao$geom %>% purrr::pluck(2) %>% as.matrix()
-pol_sudeste <- regiao$geom %>% purrr::pluck(3) %>% as.matrix()
-pol_sul <- regiao$geom %>% purrr::pluck(4) %>% as.matrix()
-pol_centroeste<- regiao$geom %>% purrr::pluck(5) %>% as.matrix()
+pol_norte <- regiao$geom |> purrr::pluck(1) |> as.matrix()
+pol_nordeste <- regiao$geom |> purrr::pluck(2) |> as.matrix()
+pol_sudeste <- regiao$geom |> purrr::pluck(3) |> as.matrix()
+pol_sul <- regiao$geom |> purrr::pluck(4) |> as.matrix()
+pol_centroeste<- regiao$geom |> purrr::pluck(5) |> as.matrix()
 ```
 
 
 Plot dos pontos e o polígono
 
 ```{r,message=FALSE,error=FALSE,warning=FALSE}
-br %>%
+br |>
   ggplot2::ggplot() +
   ggplot2::geom_sf(fill="#2D3E50", color="#FEBF57",
           size=.15, show.legend = FALSE)+
   tema_mapa() +
-  ggplot2::geom_point(data=oco2 %>% dplyr::filter(ano == 2014) ,
+  ggplot2::geom_point(data=oco2 |> dplyr::filter(ano == 2014) ,
              ggplot2::aes(x=longitude,y=latitude),
              shape=3,
              col="red",
              alpha=0.2)
 ```
 
-A partir da função point.in.pol do pacote sp, criamos a função abaixo para facilitar o processo de filtragem em função de um polígono definido.
+A partir da função `point.in.pol()` do pacote `{sp}`, criamos a função abaixo para facilitar o processo de filtragem em função de um polígono definido.
 
 ```{r}
 #' @title Define se pontos pertencem a um polígono
@@ -373,7 +397,7 @@ def_pol <- function(x, y, pol){
 Vamos criar o filtro para os pontos pertencentes ao polígono do Brasil e demais regiões.
 
 ```{r}
-oco2 <- oco2 %>%
+oco2 <- oco2 |>
           dplyr::mutate(
             flag_br = def_pol(longitude, latitude, pol_br),
             flag_norte = def_pol(longitude, latitude, pol_norte),
@@ -388,12 +412,12 @@ dplyr::glimpse(oco2)
 Plot dos pontos do polígono pol_br.
 
 ```{r,message=FALSE,error=FALSE,warning=FALSE}
-br %>%
+br |>
   ggplot2::ggplot() +
   ggplot2::geom_sf(fill="#2D3E50", color="#FEBF57",
           size=.15, show.legend = FALSE)+
   tema_mapa() +
-  ggplot2::geom_point(data=oco2 %>% dplyr::filter(flag_br, ano == 2014) ,
+  ggplot2::geom_point(data=oco2 |> dplyr::filter(flag_br, ano == 2014) ,
              ggplot2::aes(x=longitude,y=latitude),
              shape=3,
              col="red",
@@ -403,12 +427,12 @@ br %>%
 Observe que houve uma falha na região nordeste, podemos então pedir os pontos presentes do polígono br ou nordeste.
 
 ```{r,message=FALSE,error=FALSE,warning=FALSE}
-br %>%
+br |>
   ggplot2::ggplot() +
   ggplot2::geom_sf(fill="#2D3E50", color="#FEBF57",
           size=.15, show.legend = FALSE)+
   tema_mapa() +
-  ggplot2::geom_point(data=oco2 %>% 
+  ggplot2::geom_point(data=oco2 |> 
                       dplyr::filter(flag_br|flag_nordeste, ano == 2014),
              ggplot2::aes(x=longitude,y=latitude),
              shape=3,
@@ -431,19 +455,19 @@ pol_nordeste <- pol_nordeste[!((pol_nordeste[,1]>=-38.7 & pol_nordeste[,1]<=-38.
 
 
 # Recriando o flag_nordeste
-oco2 <- oco2 %>%
+oco2 <- oco2 |>
           dplyr::mutate(
             flag_br = def_pol(longitude, latitude, pol_br),
             flag_nordeste = def_pol(longitude, latitude, pol_nordeste)
             )
 
 # Plot do mapa e os pontos
-br %>%
+br |>
   ggplot2::ggplot() +
   ggplot2::geom_sf(fill="#2D3E50", color="#FEBF57",
           size=.15, show.legend = FALSE)+
   tema_mapa() +
-  ggplot2::geom_point(data=oco2 %>% 
+  ggplot2::geom_point(data=oco2 |> 
                       dplyr::filter(flag_br|flag_nordeste, ano == 2014),
              ggplot2::aes(x=longitude,y=latitude),
              shape=3,
@@ -454,8 +478,8 @@ br %>%
 Agora podemos filtrar os pontos para o território brasileiro e salvar o arquivo no diretório **data/oco2_br.rds**.
 
 ```{r}
-oco2_br <- oco2 %>%
-  dplyr::filter( flag_br | flag_nordeste ) %>%
+oco2_br <- oco2 |>
+  dplyr::filter( flag_br | flag_nordeste ) |>
   dplyr::select(-flag_br)
 readr::write_rds(oco2_br,"data/oco2_br.rds")
 ```
@@ -465,19 +489,19 @@ readr::write_rds(oco2_br,"data/oco2_br.rds")
 Serão as concentrações de CO2 na regição Norte  onde se encontra o bioma Amazônico diferente daquele observado nas demais regiões?
 
 ```{r,message=FALSE,error=FALSE,warning=FALSE}
-oco2_br %>% 
+oco2_br |> 
     tidyr::pivot_longer(
     dplyr::starts_with("flag"),
     names_to = "região",
     values_to = "flag"
-  ) %>% 
-  dplyr::filter(flag) %>% 
-  dplyr::mutate(região = stringr::str_remove(região,"flag_")) %>% 
-  dplyr::group_by(região, ano, mes) %>% 
-  dplyr::summarise(media_co2 = mean(XCO2, na.rm=TRUE)) %>% 
+  ) |> 
+  dplyr::filter(flag) |> 
+  dplyr::mutate(região = stringr::str_remove(região,"flag_")) |> 
+  dplyr::group_by(região, ano, mes) |> 
+  dplyr::summarise(media_co2 = mean(XCO2, na.rm=TRUE)) |> 
     dplyr::mutate(
     mes_ano = lubridate::make_date(ano, mes, 1)
-  ) %>% 
+  ) |> 
   ggplot2::ggplot(ggplot2::aes(x = mes_ano, y = media_co2,
                                color=região)) +
   ggplot2::geom_line() +
@@ -488,16 +512,16 @@ A região Norte apresenta uma menor sazonalidade com as menores variações da c
 Vamos criar a coluna região para identicação dos pontos. Além disso será criado a coluna mes_ano.
 
 ```{r,message=FALSE,warning=FALSE}
-oco2_br %>% 
+oco2_br |> 
     tidyr::pivot_longer(
     dplyr::starts_with("flag"),
     names_to = "região",
     values_to = "flag"
-  ) %>% 
-  dplyr::filter(flag) %>% 
-  dplyr::mutate(região = stringr::str_remove(região,"flag_")) %>% 
-  dplyr::group_by(região, ano, mes) %>% 
-  dplyr::summarise(media_co2 = mean(XCO2, na.rm=TRUE)) %>% 
+  ) |> 
+  dplyr::filter(flag) |> 
+  dplyr::mutate(região = stringr::str_remove(região,"flag_")) |> 
+  dplyr::group_by(região, ano, mes) |> 
+  dplyr::summarise(media_co2 = mean(XCO2, na.rm=TRUE)) |> 
     dplyr::mutate(
     mes_ano = lubridate::make_date(ano, mes, 1)
   )
@@ -507,13 +531,13 @@ oco2_br %>%
 ## Análise de variabilidade espaço-temporal para os pontos da região norte.
 
 ```{r,message=FALSE}
-xco2_norte <- oco2_br %>% 
-  dplyr::filter(flag_norte, ano==2014) %>% 
-  dplyr::mutate(coordxy = paste0(latitude,longitude)) %>% 
-  dplyr::group_by(longitude,latitude) %>% 
+xco2_norte <- oco2_br |> 
+  dplyr::filter(flag_norte, ano==2014) |> 
+  dplyr::mutate(coordxy = paste0(latitude,longitude)) |> 
+  dplyr::group_by(longitude,latitude) |> 
   dplyr::summarise(xco2_media = mean(XCO2, na.rm=TRUE) )
 
-xco2_norte %>% 
+xco2_norte |> 
   ggplot2::ggplot(ggplot2::aes(x=longitude, y=latitude) ) + 
   ggplot2::geom_point()
 ```
@@ -529,7 +553,7 @@ Verificando o Variograma experimental
 
 ```{r}
 vari_co2_norte<-gstat::variogram(form, data=xco2_norte)
-vari_co2_norte %>% 
+vari_co2_norte |> 
   ggplot2::ggplot(ggplot2::aes(x=dist, y=gamma)) +
   ggplot2::geom_point()
 ```
@@ -568,7 +592,7 @@ ko_fco2<-gstat::krige(formula=form, xco2_norte, grid, model=m_xco2,
 Mapa de padrões espaciais para o Ano de 2014 da região Norte.
 
 ```{r}
-tibble::as.tibble(ko_fco2) %>% 
+tibble::as.tibble(ko_fco2) |> 
   ggplot2::ggplot(ggplot2::aes(x=X, y=Y)) + 
   ggplot2::geom_tile(ggplot2::aes(fill = var1.pred)) +
   ggplot2::scale_fill_gradient(low = "yellow", high = "blue") + 
@@ -578,9 +602,9 @@ tibble::as.tibble(ko_fco2) %>%
 Mapa do padrão espacial com o contorno.
 
 ```{r,error=FALSE,message=FALSE,warning=FALSE}
-tibble::as.tibble(ko_fco2) %>% 
-  dplyr::mutate(flag_norte = def_pol(X,Y,pol_norte)) %>% 
-  dplyr::filter(flag_norte) %>% 
+tibble::as.tibble(ko_fco2) |> 
+  dplyr::mutate(flag_norte = def_pol(X,Y,pol_norte)) |> 
+  dplyr::filter(flag_norte) |> 
   ggplot2::ggplot(ggplot2::aes(x=X, y=Y),color="black") + 
   ggplot2::geom_tile(ggplot2::aes(fill = var1.pred)) +
   ggplot2::scale_fill_gradient(low = "yellow", high = "blue") + 
@@ -598,23 +622,23 @@ tibble::as.tibble(ko_fco2) %>%
 
 
 ```{r, warning=FALSE,message=FALSE}
-oco2_nest<-oco2_br %>% 
-  dplyr::mutate(trimestre = lubridate::quarter(data)) %>% 
+oco2_nest<-oco2_br |> 
+  dplyr::mutate(trimestre = lubridate::quarter(data)) |> 
   tidyr::pivot_longer(
     starts_with("flag"),
     names_to = "região",
     values_to = "flag"
-  ) %>% 
-  dplyr::filter(flag) %>% 
-  dplyr::mutate(região = stringr::str_remove(região,"flag_")) %>% 
-  dplyr::group_by(longitude, latitude, região, ano, trimestre) %>% 
-  dplyr::summarise(media_co2 = mean(XCO2, na.rm=TRUE)) %>% 
+  ) |> 
+  dplyr::filter(flag) |> 
+  dplyr::mutate(região = stringr::str_remove(região,"flag_")) |> 
+  dplyr::group_by(longitude, latitude, região, ano, trimestre) |> 
+  dplyr::summarise(media_co2 = mean(XCO2, na.rm=TRUE)) |> 
     dplyr::mutate(
     trimestre_ano = lubridate::make_date(ano, trimestre, 1),
     regi = região,
     id_time = trimestre_ano
-  ) %>% 
-  dplyr::group_by(região,trimestre_ano) %>% 
+  ) |> 
+  dplyr::group_by(região,trimestre_ano) |> 
   tidyr::nest() 
 head(oco2_nest)
 ```
@@ -655,9 +679,9 @@ geoestati <- function(df,modelo="Sph"){
 
 
   # Saída do mapa krigado
-   tibble::as.tibble(ko_xco2) %>%
-   dplyr::mutate(flag = def_pol(X,Y,pol_)) %>%
-   dplyr::filter(flag) %>%
+   tibble::as.tibble(ko_xco2) |>
+   dplyr::mutate(flag = def_pol(X,Y,pol_)) |>
+   dplyr::filter(flag) |>
    ggplot2::ggplot(ggplot2::aes(x=X, y=Y)) +
    ggplot2::geom_tile(ggplot2::aes(fill = var1.pred)) +
    ggplot2::scale_fill_gradient(low = "yellow", high = "blue") +
@@ -672,11 +696,10 @@ geoestati <- function(df,modelo="Sph"){
 }
 ```
 
-
 Laço para criar os mapas por trimestre.
 
 ```{r,error=FALSE,warning=FALSE,message=FALSE}
-oco2_nest <- oco2_nest %>% 
+oco2_nest <- oco2_nest |> 
   dplyr::mutate( 
     geo_sph = purrr::map(data,geoestati,modelo="Sph")
     )
