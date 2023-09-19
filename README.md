@@ -10,25 +10,22 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-Projeto final apresentado os instrutores William Amorim e Caio Lente do
-Curso R como parte das exigências para a finalização do curso de R para
-Ciência de Dados II (Turma Abril 2021).
-
-A caracterização da concentração de CO2 e sua variabilidade
+A caracterização da concentração de CO<sub>2</sub> e sua variabilidade
 espaço-temporal é fundamental para o planejamento e execução de medidas
 com o propósito de mitigar as emissões de gases de efeito estufa.
 
 O satélite OCO-2 foi lançado em órbita em julho de 2014 pela NASA, e
 oferece um grande potencial nas estimativas dos fluxos de dióxido de
-carbono (CO2). O satélite mede a concentração de CO2 atmosférico
-indiretamente por meio da intensidade da radiação solar refletida em
-função da presença de dióxido de carbono em uma coluna de ar. Desta
-forma, faz-se a leitura em três faixas de comprimento de onda: a do O2,
-na faixa de 0.757 a 0.775 μm, e as do CO2, que são subdividas em banda
-fraca (1.594 – 1.627 μm) e banda forte (2.043 – 2.087 μm).
+carbono (CO<sub>2</sub>). O satélite mede a concentração de
+CO<sub>2</sub> atmosférico indiretamente por meio da intensidade da
+radiação solar refletida em função da presença de dióxido de carbono em
+uma coluna de ar. Desta forma, faz-se a leitura em três faixas de
+comprimento de onda: a do O<sub>2</sub>, na faixa de 0,757 a 0,775 μm, e
+as do CO<sub>2</sub>, que são subdividas em banda fraca (1,594 – 1,627
+μm) e banda forte (2,043 – 2,087 μm).
 
 Ele foi o primeiro satélite da NASA direcionado para o monitoramento dos
-fluxos de CO2 atmosférico, sendo um dos mais recentes, e vem
+fluxos de CO<sub>2</sub> atmosférico, sendo um dos mais recentes, e vem
 apresentando usos bem diversificados, mostrando-se capaz de monitorar as
 emissões de combustíveis fósseis, fotossíntese, e produção de biomassa.
 
@@ -166,10 +163,13 @@ download_arquivos <- function(url, dir){
 tictoc::tic()
 purrr::map2(links[1:1], files_csv[1:1], 
             purrr::possibly(download_arquivos, ""))
+#> Warning in download.file(url, dir, mode = "wb"): URL
+#> 'http://co2web.jpl.nasa.gov/wpsoutput/20210216_052223.726060/OCO2L2Stdv10_L3_20140905_000000_20140930_235959.csv':
+#> Timeout of 60 seconds was reached
 #> [[1]]
-#> [1] "data-raw/csv/OCO2L2Stdv10_L3_20140905_000000_20140930_235959.csv"
+#> [1] ""
 tictoc::toc()
-#> 18.14 sec elapsed
+#> 24.27 sec elapsed
 ```
 
 ``` r
@@ -234,19 +234,19 @@ serão necessárias.
 
 ``` r
 dplyr::glimpse(oco2)
-#> Rows: 361,615
+#> Rows: 364,529
 #> Columns: 11
-#> $ longitude                              <dbl> -74.58225, -74.58225, -74.58225~
-#> $ longitude_bnds                         <chr> "-74.70703125:-74.4574652778", ~
-#> $ latitude                               <dbl> -30.22572489, -29.97654828, -29~
-#> $ latitude_bnds                          <chr> "-30.3503131952:-30.1011365845"~
-#> $ time_yyyymmddhhmmss                    <dbl> 2.014091e+13, 2.014091e+13, 2.0~
-#> $ time_bnds_yyyymmddhhmmss               <chr> "20140909000000:20140910000000"~
-#> $ altitude_km                            <dbl> 3307.8, 3307.8, 3307.8, 3307.8,~
-#> $ alt_bnds_km                            <chr> "0.0:6615.59960938", "0.0:6615.~
-#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.012406800, 0.010696600, -0.00~
-#> $ fluorescence_offset_relative_757nm_idp <dbl> -3.58630e+00, 8.81219e-02, -3.6~
-#> $ xco2_moles_mole_1                      <dbl> 0.000394333, 0.000395080, 0.000~
+#> $ longitude                              <dbl> -74.58225, -74.58225, -74.58225…
+#> $ longitude_bnds                         <chr> "-74.70703125:-74.4574652778", …
+#> $ latitude                               <dbl> -30.22572489, -29.97654828, -29…
+#> $ latitude_bnds                          <chr> "-30.3503131952:-30.1011365845"…
+#> $ time_yyyymmddhhmmss                    <dbl> 2.014091e+13, 2.014091e+13, 2.0…
+#> $ time_bnds_yyyymmddhhmmss               <chr> "20140909000000:20140910000000"…
+#> $ altitude_km                            <dbl> 3307.8, 3307.8, 3307.8, 3307.8,…
+#> $ alt_bnds_km                            <chr> "0.0:6615.59960938", "0.0:6615.…
+#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.012406800, 0.010696600, -0.00…
+#> $ fluorescence_offset_relative_757nm_idp <dbl> -3.58630e+00, 8.81219e-02, -3.6…
+#> $ xco2_moles_mole_1                      <dbl> 0.000394333, 0.000395080, 0.000…
 ```
 
 Inicialmente devemos transformar os dados de concentração de CO2,
@@ -289,7 +289,12 @@ oco2 |>
   ggplot2::geom_smooth(method = "lm") +
   ggpubr::stat_regline_equation(ggplot2::aes(
   label =  paste(..eq.label.., ..rr.label.., sep = "*plain(\",\")~~")))
-#> `geom_smooth()` using formula 'y ~ x'
+#> Warning: The dot-dot notation (`..eq.label..`) was deprecated in ggplot2 3.4.0.
+#> ℹ Please use `after_stat(eq.label)` instead.
+#> This warning is displayed once every 8 hours.
+#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#> generated.
+#> `geom_smooth()` using formula = 'y ~ x'
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
@@ -309,23 +314,23 @@ summary.lm(mod)
 #> 
 #> Residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -80.667  -1.278   0.584   2.049  74.172 
+#> -80.677  -1.278   0.585   2.050  74.232 
 #> 
 #> Coefficients:
 #>              Estimate Std. Error t value Pr(>|t|)    
-#> (Intercept) 3.929e+02  1.220e-02 32197.7   <2e-16 ***
-#> d_aux$x     4.461e-05  5.845e-08   763.1   <2e-16 ***
+#> (Intercept) 3.928e+02  1.216e-02 32302.8   <2e-16 ***
+#> d_aux$x     4.437e-05  5.778e-08   767.8   <2e-16 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> Residual standard error: 3.669 on 361613 degrees of freedom
-#> Multiple R-squared:  0.6169, Adjusted R-squared:  0.6169 
-#> F-statistic: 5.824e+05 on 1 and 361613 DF,  p-value: < 2.2e-16
+#> Residual standard error: 3.671 on 364527 degrees of freedom
+#> Multiple R-squared:  0.6179, Adjusted R-squared:  0.6179 
+#> F-statistic: 5.895e+05 on 1 and 364527 DF,  p-value: < 2.2e-16
 a<-mod$coefficients[1]
 b<-mod$coefficients[2]
 ```
 
-Criando a variável xco2\_est a partir da retirada da tendência.
+Criando a variável xco2_est a partir da retirada da tendência.
 
 ``` r
 oco2 <- oco2 |> 
@@ -337,29 +342,29 @@ oco2 <- oco2 |>
     XCO2 = (a-delta) - (mean(xco2) - a)
   ) 
 dplyr::glimpse(oco2)
-#> Rows: 361,615
+#> Rows: 364,529
 #> Columns: 21
-#> $ longitude                              <dbl> -72.58572, -72.33615, -72.33615~
-#> $ longitude_bnds                         <chr> "-72.7105034722:-72.4609375", "~
-#> $ latitude                               <dbl> 6.154060, 5.157354, 5.406530, 3~
-#> $ latitude_bnds                          <chr> "6.02947197682:6.27864858759", ~
-#> $ time_yyyymmddhhmmss                    <dbl> 2.014091e+13, 2.014091e+13, 2.0~
-#> $ time_bnds_yyyymmddhhmmss               <chr> "20140906000000:20140907000000"~
-#> $ altitude_km                            <dbl> 3307.8, 3307.8, 3307.8, 3307.8,~
-#> $ alt_bnds_km                            <chr> "0.0:6615.59960938", "0.0:6615.~
-#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.01034260, 0.01597090, 0.00988~
-#> $ fluorescence_offset_relative_757nm_idp <dbl> 0.00158627, 0.00160726, 0.00848~
-#> $ xco2_moles_mole_1                      <dbl> 0.000391368, 0.000389822, 0.000~
-#> $ xco2                                   <dbl> 391.368, 389.822, 388.482, 390.~
-#> $ data                                   <dttm> 2014-09-06 12:00:00, 2014-09-0~
-#> $ ano                                    <dbl> 2014, 2014, 2014, 2014, 2014, 2~
-#> $ mes                                    <dbl> 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9~
-#> $ dia                                    <int> 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6~
-#> $ dia_semana                             <dbl> 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7~
-#> $ x                                      <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ~
-#> $ xco2_est                               <dbl> 392.9087, 392.9088, 392.9088, 3~
-#> $ delta                                  <dbl> 1.5407370, 3.0867816, 4.4268262~
-#> $ XCO2                                   <dbl> 383.3029, 381.7569, 380.4168, 3~
+#> $ longitude                              <dbl> -72.58572, -72.33615, -72.33615…
+#> $ longitude_bnds                         <chr> "-72.7105034722:-72.4609375", "…
+#> $ latitude                               <dbl> 6.154060, 5.157354, 5.406530, 3…
+#> $ latitude_bnds                          <chr> "6.02947197682:6.27864858759", …
+#> $ time_yyyymmddhhmmss                    <dbl> 2.014091e+13, 2.014091e+13, 2.0…
+#> $ time_bnds_yyyymmddhhmmss               <chr> "20140906000000:20140907000000"…
+#> $ altitude_km                            <dbl> 3307.8, 3307.8, 3307.8, 3307.8,…
+#> $ alt_bnds_km                            <chr> "0.0:6615.59960938", "0.0:6615.…
+#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.01034260, 0.01597090, 0.00988…
+#> $ fluorescence_offset_relative_757nm_idp <dbl> 0.00158627, 0.00160726, 0.00848…
+#> $ xco2_moles_mole_1                      <dbl> 0.000391368, 0.000389822, 0.000…
+#> $ xco2                                   <dbl> 391.368, 389.822, 388.482, 390.…
+#> $ data                                   <dttm> 2014-09-06 12:00:00, 2014-09-0…
+#> $ ano                                    <dbl> 2014, 2014, 2014, 2014, 2014, 2…
+#> $ mes                                    <dbl> 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9…
+#> $ dia                                    <int> 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6…
+#> $ dia_semana                             <dbl> 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7…
+#> $ x                                      <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, …
+#> $ xco2_est                               <dbl> 392.8449, 392.8450, 392.8450, 3…
+#> $ delta                                  <dbl> 1.4769085, 3.0229529, 4.3629972…
+#> $ XCO2                                   <dbl> 383.2815, 381.7354, 380.3954, 3…
 ```
 
 Visualização da concentração de CO2 no ano de 2014, primeiro ano de
@@ -458,39 +463,47 @@ oco2 <- oco2 |>
             flag_sudeste = def_pol(longitude, latitude, pol_sudeste),
             flag_centroeste = def_pol(longitude, latitude, pol_centroeste)
           ) 
+#> The legacy packages maptools, rgdal, and rgeos, underpinning the sp package,
+#> which was just loaded, will retire in October 2023.
+#> Please refer to R-spatial evolution reports for details, especially
+#> https://r-spatial.org/r/2023/05/15/evolution4.html.
+#> It may be desirable to make the sf package available;
+#> package maintainers should consider adding sf to Suggests:.
+#> The sp package is now running under evolution status 2
+#>      (status 2 uses the sf package in place of rgdal)
 dplyr::glimpse(oco2)
-#> Rows: 361,615
+#> Rows: 364,529
 #> Columns: 27
-#> $ longitude                              <dbl> -72.58572, -72.33615, -72.33615~
-#> $ longitude_bnds                         <chr> "-72.7105034722:-72.4609375", "~
-#> $ latitude                               <dbl> 6.154060, 5.157354, 5.406530, 3~
-#> $ latitude_bnds                          <chr> "6.02947197682:6.27864858759", ~
-#> $ time_yyyymmddhhmmss                    <dbl> 2.014091e+13, 2.014091e+13, 2.0~
-#> $ time_bnds_yyyymmddhhmmss               <chr> "20140906000000:20140907000000"~
-#> $ altitude_km                            <dbl> 3307.8, 3307.8, 3307.8, 3307.8,~
-#> $ alt_bnds_km                            <chr> "0.0:6615.59960938", "0.0:6615.~
-#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.01034260, 0.01597090, 0.00988~
-#> $ fluorescence_offset_relative_757nm_idp <dbl> 0.00158627, 0.00160726, 0.00848~
-#> $ xco2_moles_mole_1                      <dbl> 0.000391368, 0.000389822, 0.000~
-#> $ xco2                                   <dbl> 391.368, 389.822, 388.482, 390.~
-#> $ data                                   <dttm> 2014-09-06 12:00:00, 2014-09-0~
-#> $ ano                                    <dbl> 2014, 2014, 2014, 2014, 2014, 2~
-#> $ mes                                    <dbl> 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9~
-#> $ dia                                    <int> 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6~
-#> $ dia_semana                             <dbl> 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7~
-#> $ x                                      <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ~
-#> $ xco2_est                               <dbl> 392.9087, 392.9088, 392.9088, 3~
-#> $ delta                                  <dbl> 1.5407370, 3.0867816, 4.4268262~
-#> $ XCO2                                   <dbl> 383.3029, 381.7569, 380.4168, 3~
-#> $ flag_br                                <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
-#> $ flag_norte                             <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
-#> $ flag_nordeste                          <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
-#> $ flag_sul                               <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
-#> $ flag_sudeste                           <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
-#> $ flag_centroeste                        <lgl> FALSE, FALSE, FALSE, FALSE, FAL~
+#> $ longitude                              <dbl> -72.58572, -72.33615, -72.33615…
+#> $ longitude_bnds                         <chr> "-72.7105034722:-72.4609375", "…
+#> $ latitude                               <dbl> 6.154060, 5.157354, 5.406530, 3…
+#> $ latitude_bnds                          <chr> "6.02947197682:6.27864858759", …
+#> $ time_yyyymmddhhmmss                    <dbl> 2.014091e+13, 2.014091e+13, 2.0…
+#> $ time_bnds_yyyymmddhhmmss               <chr> "20140906000000:20140907000000"…
+#> $ altitude_km                            <dbl> 3307.8, 3307.8, 3307.8, 3307.8,…
+#> $ alt_bnds_km                            <chr> "0.0:6615.59960938", "0.0:6615.…
+#> $ fluorescence_offset_relative_771nm_idp <dbl> 0.01034260, 0.01597090, 0.00988…
+#> $ fluorescence_offset_relative_757nm_idp <dbl> 0.00158627, 0.00160726, 0.00848…
+#> $ xco2_moles_mole_1                      <dbl> 0.000391368, 0.000389822, 0.000…
+#> $ xco2                                   <dbl> 391.368, 389.822, 388.482, 390.…
+#> $ data                                   <dttm> 2014-09-06 12:00:00, 2014-09-0…
+#> $ ano                                    <dbl> 2014, 2014, 2014, 2014, 2014, 2…
+#> $ mes                                    <dbl> 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9…
+#> $ dia                                    <int> 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6…
+#> $ dia_semana                             <dbl> 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7…
+#> $ x                                      <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, …
+#> $ xco2_est                               <dbl> 392.8449, 392.8450, 392.8450, 3…
+#> $ delta                                  <dbl> 1.4769085, 3.0229529, 4.3629972…
+#> $ XCO2                                   <dbl> 383.2815, 381.7354, 380.3954, 3…
+#> $ flag_br                                <lgl> FALSE, FALSE, FALSE, FALSE, FAL…
+#> $ flag_norte                             <lgl> FALSE, FALSE, FALSE, FALSE, FAL…
+#> $ flag_nordeste                          <lgl> FALSE, FALSE, FALSE, FALSE, FAL…
+#> $ flag_sul                               <lgl> FALSE, FALSE, FALSE, FALSE, FAL…
+#> $ flag_sudeste                           <lgl> FALSE, FALSE, FALSE, FALSE, FAL…
+#> $ flag_centroeste                        <lgl> FALSE, FALSE, FALSE, FALSE, FAL…
 ```
 
-Plot dos pontos do polígono pol\_br.
+Plot dos pontos do polígono pol_br.
 
 ``` r
 br |>
@@ -564,7 +577,7 @@ br |>
 ![](README_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
 
 Agora podemos filtrar os pontos para o território brasileiro e salvar o
-arquivo no diretório **data/oco2\_br.rds**.
+arquivo no diretório **data/oco2_br.rds**.
 
 ``` r
 oco2_br <- oco2 |>
@@ -603,7 +616,7 @@ Norte apresenta uma menor sazonalidade com as menores variações da
 concentração de CO2 atmosférico quando comparada às demais regiões.
 
 Vamos criar a coluna região para identicação dos pontos. Além disso será
-criado a coluna mes\_ano.
+criado a coluna mes_ano.
 
 ``` r
 oco2_br |> 
@@ -619,7 +632,7 @@ oco2_br |>
     dplyr::mutate(
     mes_ano = lubridate::make_date(ano, mes, 1)
   )
-#> # A tibble: 364 x 5
+#> # A tibble: 365 × 5
 #> # Groups:   região, ano [35]
 #>    região       ano   mes media_co2 mes_ano   
 #>    <chr>      <dbl> <dbl>     <dbl> <date>    
@@ -633,7 +646,7 @@ oco2_br |>
 #>  8 centroeste  2015     4      382. 2015-04-01
 #>  9 centroeste  2015     5      384. 2015-05-01
 #> 10 centroeste  2015     6      386. 2015-06-01
-#> # ... with 354 more rows
+#> # ℹ 355 more rows
 ```
 
 ## Análise de variabilidade espaço-temporal para os pontos da região norte.
@@ -705,7 +718,7 @@ ko_fco2<-gstat::krige(formula=form, xco2_norte, grid, model=m_xco2,
     debug.level=-1,  
     )
 #> [using ordinary kriging]
-#>   0% done  1% done  2% done  3% done  4% done  5% done  6% done  7% done  8% done  9% done 10% done 11% done 12% done 13% done 14% done 15% done 16% done 17% done 18% done 19% done 20% done 21% done 22% done 23% done 24% done 25% done 26% done 27% done 28% done 29% done 30% done 31% done 32% done 33% done 34% done 35% done 36% done 37% done 38% done 39% done 40% done 41% done 42% done 43% done 44% done 45% done 46% done 47% done 48% done 49% done 50% done 51% done 52% done 53% done 54% done 55% done 56% done 57% done 58% done 59% done 60% done 61% done 62% done 63% done 64% done 65% done 66% done 67% done 68% done 69% done 70% done 71% done 72% done 73% done 74% done 75% done 76% done 77% done 78% done 79% done 80% done 81% done 82% done 83% done 84% done 85% done 86% done 87% done 88% done 89% done 90% done 91% done 92% done 93% done 94% done 95% done 96% done 97% done 98% done 99% done100% done
+#>   0% done  1% done  2% done  4% done  5% done  7% done  8% done 10% done 11% done 13% done 14% done 15% done 16% done 18% done 19% done 21% done 22% done 24% done 25% done 27% done 28% done 29% done 30% done 32% done 33% done 35% done 36% done 38% done 39% done 40% done 41% done 43% done 44% done 45% done 46% done 47% done 48% done 50% done 51% done 53% done 54% done 55% done 57% done 58% done 59% done 60% done 62% done 63% done 64% done 65% done 67% done 68% done 69% done 71% done 72% done 74% done 75% done 76% done 78% done 79% done 80% done 82% done 83% done 85% done 86% done 88% done 89% done 91% done 92% done 94% done 95% done 96% done 98% done 99% done100% done
 ```
 
 Mapa de padrões espaciais para o Ano de 2014 da região Norte.
@@ -717,8 +730,11 @@ tibble::as.tibble(ko_fco2) |>
   ggplot2::scale_fill_gradient(low = "yellow", high = "blue") + 
   ggplot2::coord_equal()
 #> Warning: `as.tibble()` was deprecated in tibble 2.0.0.
-#> Please use `as_tibble()` instead.
-#> The signature and semantics have changed, see `?as_tibble`.
+#> ℹ Please use `as_tibble()` instead.
+#> ℹ The signature and semantics have changed, see `?as_tibble`.
+#> This warning is displayed once every 8 hours.
+#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#> generated.
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-53-1.png)<!-- -->
@@ -767,16 +783,16 @@ oco2_nest<-oco2_br |>
   dplyr::group_by(região,trimestre_ano) |> 
   tidyr::nest() 
 head(oco2_nest)
-#> # A tibble: 6 x 3
+#> # A tibble: 6 × 3
 #> # Groups:   região, trimestre_ano [6]
 #>   região trimestre_ano data                
 #>   <chr>  <date>        <list>              
-#> 1 norte  2017-03-01    <tibble [1,476 x 7]>
-#> 2 norte  2020-03-01    <tibble [1,637 x 7]>
-#> 3 norte  2015-04-01    <tibble [829 x 7]>  
-#> 4 norte  2019-04-01    <tibble [798 x 7]>  
-#> 5 norte  2014-04-01    <tibble [820 x 7]>  
-#> 6 norte  2016-04-01    <tibble [899 x 7]>
+#> 1 norte  2017-03-01    <tibble [1,476 × 7]>
+#> 2 norte  2020-03-01    <tibble [1,637 × 7]>
+#> 3 norte  2015-04-01    <tibble [829 × 7]>  
+#> 4 norte  2019-04-01    <tibble [798 × 7]>  
+#> 5 norte  2014-04-01    <tibble [820 × 7]>  
+#> 6 norte  2016-04-01    <tibble [899 × 7]>
 ```
 
 Criaremos uma função para modelagem e krigagem como apresentado
@@ -975,10 +991,10 @@ dplyr::glimpse(oco2_nest)
 #> Rows: 130
 #> Columns: 4
 #> Groups: região, trimestre_ano [130]
-#> $ região        <chr> "norte", "norte", "norte", "norte", "norte", "norte", "n~
-#> $ trimestre_ano <date> 2017-03-01, 2020-03-01, 2015-04-01, 2019-04-01, 2014-04~
-#> $ data          <list> [<tbl_df[1476 x 7]>], [<tbl_df[1637 x 7]>], [<tbl_df[82~
-#> $ geo_sph       <list> [-61.83355035, -61.53355035, -61.43355035, -60.93355035~
+#> $ região        <chr> "norte", "norte", "norte", "norte", "norte", "norte", "n…
+#> $ trimestre_ano <date> 2017-03-01, 2020-03-01, 2015-04-01, 2019-04-01, 2014-04…
+#> $ data          <list> [<tbl_df[1476 x 7]>], [<tbl_df[1637 x 7]>], [<tbl_df[82…
+#> $ geo_sph       <list> [-61.83355035, -61.53355035, -61.43355035, -60.93355035…
 ```
 
 Vamos verificar alguns mapas.

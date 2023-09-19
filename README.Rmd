@@ -17,15 +17,13 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-Projeto final apresentado os instrutores William Amorim e Caio Lente do Curso R como parte das exigências para a finalização do curso de R para Ciência de Dados II (Turma Abril 2021).
+
+A caracterização da concentração de CO~2~ e sua variabilidade espaço-temporal é fundamental para o planejamento e execução de medidas com o propósito de mitigar as emissões de gases de efeito estufa.
 
 
-A caracterização da concentração de CO2 e sua variabilidade espaço-temporal é fundamental para o planejamento e execução de medidas com o propósito de mitigar as emissões de gases de efeito estufa.
+O satélite OCO-2 foi lançado em órbita em julho de 2014 pela NASA, e oferece um grande potencial nas estimativas dos fluxos de dióxido de carbono (CO~2~).  O satélite mede a concentração de CO~2~ atmosférico indiretamente por meio da intensidade da radiação solar refletida em função da presença de dióxido de carbono em uma coluna de ar. Desta forma, faz-se a leitura em três faixas de comprimento de onda: a do O~2~, na faixa de 0,757 a 0,775 μm, e as do CO~2~, que são subdividas em banda fraca (1,594 – 1,627 μm) e banda forte (2,043 – 2,087 μm). 
 
-
-O satélite OCO-2 foi lançado em órbita em julho de 2014 pela NASA, e oferece um grande potencial nas estimativas dos fluxos de dióxido de carbono (CO2).  O satélite mede a concentração de CO2 atmosférico indiretamente por meio da intensidade da radiação solar refletida em função da presença de dióxido de carbono em uma coluna de ar. Desta forma, faz-se a leitura em três faixas de comprimento de onda: a do O2, na faixa de 0.757 a 0.775 μm, e as do CO2, que são subdividas em banda fraca (1.594 – 1.627 μm) e banda forte (2.043 – 2.087 μm). 
-
-Ele foi o primeiro satélite da NASA direcionado para o monitoramento dos fluxos de CO2 atmosférico, sendo um dos mais recentes, e vem apresentando usos bem diversificados, mostrando-se capaz de monitorar as emissões de combustíveis fósseis, fotossíntese, e produção de biomassa.
+Ele foi o primeiro satélite da NASA direcionado para o monitoramento dos fluxos de CO~2~ atmosférico, sendo um dos mais recentes, e vem apresentando usos bem diversificados, mostrando-se capaz de monitorar as emissões de combustíveis fósseis, fotossíntese, e produção de biomassa.
 
 O objetivo desse material é apresentar os procedimentos básicos para aquisição de dados do satélite OCO-2 e processamento inicial em R, para tratamento, faxina, retirada de tendência e construção de mapas de variabilidade espacial utilizando a variável concentração de dióxido de carbono na coluna atmosférica (`xco2`). As análises serão realizadas para as diferentes regiões do Brasil no período de 2014 a 2020, perído total de dados disponibilizado pela Agencia Espacial Americana (National Aeronautics and Space Administration - NASA). 
 
